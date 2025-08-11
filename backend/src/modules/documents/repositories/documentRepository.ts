@@ -116,7 +116,7 @@ export class DocumentRepository implements IRepository<Document> {
 
   async delete(id: string): Promise<boolean> {
     const result = await this.database.run('DELETE FROM documents WHERE id = ?', [id]);
-    return result.changes > 0;
+    return result && result.changes > 0;
   }
 
   private mapRowToDocument(row: any): Document {

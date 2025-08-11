@@ -8,13 +8,11 @@ export class SQLiteDatabase implements IDatabase {
   private db: Database;
   private allAsync: (sql: string, params?: any[]) => Promise<any[]>;
   private getAsync: (sql: string, params?: any[]) => Promise<any>;
-  private runAsync: (sql: string, params?: any[]) => Promise<{ lastID?: number; changes: number }>;
 
   constructor(dbPath: string) {
     this.db = new Database(dbPath);
     this.allAsync = promisify(this.db.all.bind(this.db));
     this.getAsync = promisify(this.db.get.bind(this.db));
-    this.runAsync = promisify(this.db.run.bind(this.db));
   }
 
   async query<T = any>(sql: string, params: any[] = []): Promise<T[]> {
@@ -26,7 +24,18 @@ export class SQLiteDatabase implements IDatabase {
   }
 
   async run(sql: string, params: any[] = []): Promise<{ lastID?: number; changes: number }> {
-    return this.runAsync(sql, params) as Promise<{ lastID?: number; changes: number }>;
+    return new Promise((resolve, reject) => {
+      this.db.run(sql, params, function(this: any, err: any) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({
+            lastID: this.lastID,
+            changes: this.changes
+          });
+        }
+      });
+    });
   }
 
   async close(): Promise<void> {
