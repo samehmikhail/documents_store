@@ -1,35 +1,58 @@
 import { Tenant } from '../types/tenant';
+import { Config } from '../../../config';
+import path from 'path';
+import fs from 'fs/promises';
 
-// Simple in-memory tenant store for demo purposes
-// In a real application, this would be replaced with a database
+// Filesystem-based tenant store that discovers tenants from database files
+// Each tenant has its own SQLite database file named {tenantId}.db
 class TenantStore {
-  private tenants: Map<string, Tenant> = new Map();
+  private dbDirectory: string;
 
   constructor() {
-    // Empty constructor - no demo data
+    this.dbDirectory = path.resolve(Config.DB_DIRECTORY);
   }
 
-  addTenant(id: string, name: string, isActive: boolean): void {
-    const tenant: Tenant = {
-      id,
-      name,
-      createdAt: new Date(),
-      isActive
-    };
-    this.tenants.set(id, tenant);
+  /**
+   * Discovers tenants by scanning database files in the directory
+   */
+  async getTenant(id: string): Promise<Tenant | undefined> {
+    try {
+      const dbPath = path.join(this.dbDirectory, `${id}.db`);
+      await fs.access(dbPath);
+      return { id };
+    } catch {
+      return undefined;
+    }
   }
 
-  getTenant(id: string): Tenant | undefined {
-    return this.tenants.get(id);
+  /**
+   * Checks if a tenant is valid by verifying its database file exists
+   */
+  async isValidTenant(id: string): Promise<boolean> {
+    const tenant = await this.getTenant(id);
+    return tenant !== undefined;
   }
 
-  isValidTenant(id: string): boolean {
-    const tenant = this.getTenant(id);
-    return tenant !== undefined && tenant.isActive;
-  }
-
-  getAllTenants(): Tenant[] {
-    return Array.from(this.tenants.values());
+  /**
+   * Gets all tenants by scanning for database files
+   */
+  async getAllTenants(): Promise<Tenant[]> {
+    try {
+      const files = await fs.readdir(this.dbDirectory);
+      const tenants: Tenant[] = [];
+      
+      for (const file of files) {
+        if (file.endsWith('.db')) {
+          const tenantId = file.slice(0, -3); // Remove .db extension
+          tenants.push({ id: tenantId });
+        }
+      }
+      
+      return tenants;
+    } catch (error) {
+      // Directory might not exist yet
+      return [];
+    }
   }
 }
 

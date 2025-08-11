@@ -1,7 +1,6 @@
 import { databaseManager } from '../../../database/manager';
 import { AuthenticationService } from '../../authentication/services/authenticationService';
 import { SEED_DATA, SeedUserData } from '../types/seedData';
-import { tenantStore } from '../../multi-tenant/services/tenantStore';
 
 export class DataSeedService {
   private static instance: DataSeedService;
@@ -18,15 +17,13 @@ export class DataSeedService {
   /**
    * Seeds the database with pre-configured test data.
    * This method is idempotent - it will only create data if it doesn't already exist.
+   * Tenants are automatically discovered from database files when they are created.
    */
   async seedData(): Promise<void> {
     console.log('🌱 Starting data seeding process...');
 
     try {
       const tenants = this.getUniqueTenants();
-      
-      // Register tenants in tenant store first
-      this.registerTenants(tenants);
       
       for (const tenant of tenants) {
         await this.seedTenantData(tenant);
@@ -40,34 +37,12 @@ export class DataSeedService {
   }
 
   /**
-   * Register tenants in the tenant store
-   */
-  private registerTenants(tenantIds: string[]): void {
-    for (const tenantId of tenantIds) {
-      // Check if tenant is already registered
-      if (!tenantStore.isValidTenant(tenantId)) {
-        const tenantName = this.formatTenantName(tenantId);
-        tenantStore.addTenant(tenantId, tenantName, true);
-        console.log(`🏢 Registered tenant: ${tenantId} (${tenantName})`);
-      } else {
-        console.log(`🏢 Tenant ${tenantId} already registered, skipping...`);
-      }
-    }
-  }
-
-  /**
-   * Format tenant name for display
-   */
-  private formatTenantName(tenantId: string): string {
-    return tenantId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  }
-
-  /**
    * Seeds data for a specific tenant
    */
   private async seedTenantData(tenantId: string): Promise<void> {
     console.log(`📂 Processing tenant: ${tenantId}`);
     
+    // Getting database will create the database file, making the tenant discoverable
     const database = await databaseManager.getDatabase(tenantId);
     const authService = new AuthenticationService(database);
     
@@ -122,15 +97,7 @@ export class DataSeedService {
    */
   async isSeedDataPresent(): Promise<boolean> {
     try {
-      // Check if tenants are registered
-      const tenants = this.getUniqueTenants();
-      for (const tenantId of tenants) {
-        if (!tenantStore.isValidTenant(tenantId)) {
-          return false;
-        }
-      }
-      
-      // Check if users exist
+      // Check if users exist - tenants are automatically discovered when databases exist
       for (const userData of Object.values(SEED_DATA)) {
         const database = await databaseManager.getDatabase(userData.tenant);
         const authService = new AuthenticationService(database);
