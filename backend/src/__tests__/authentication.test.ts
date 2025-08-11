@@ -17,7 +17,7 @@ describe('Authentication API', () => {
     const authService = new AuthenticationService(database);
     
     // Create a test user with token
-    const userWithToken = await authService.createUser('testuser', 'admin');
+    const userWithToken = await authService.createUser('testuser', 'admin', undefined);
     
     // Update the token to a known value for testing
     if (userWithToken.token) {

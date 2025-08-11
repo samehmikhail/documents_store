@@ -19,7 +19,7 @@ export const tenantMiddleware = (req: Request, res: Response, next: NextFunction
   if (!tenantStore.isValidTenant(tenantId)) {
     res.status(404).json({
       success: false,
-      message: req.t('auth:tenantInvalid'),
+      message: req.t('auth:tenantInvalid') || 'Invalid or inactive tenant ID.',
       code: 'TENANT_INVALID'
     });
     return;

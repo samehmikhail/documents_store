@@ -26,12 +26,12 @@ describe('Multi-Tenant API', () => {
     // Create test users with tokens for each tenant
     const db1 = await databaseManager.getDatabase('tenant1');
     const authService1 = new AuthenticationService(db1);
-    const user1 = await authService1.createUser('testuser1', 'admin');
+    const user1 = await authService1.createUser('testuser1', 'admin', undefined);
     testToken1 = user1.token!.token;
     
     const db2 = await databaseManager.getDatabase('tenant2');
     const authService2 = new AuthenticationService(db2);
-    const user2 = await authService2.createUser('testuser2', 'user');
+    const user2 = await authService2.createUser('testuser2', 'user', undefined);
     testToken2 = user2.token!.token;
   });
 
