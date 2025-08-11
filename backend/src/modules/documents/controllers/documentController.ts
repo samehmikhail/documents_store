@@ -33,7 +33,7 @@ export class DocumentController {
 
   // Get multer middleware for multiple file uploads
   getMultiUploadMiddleware() {
-    return upload.array('files', 10);
+    return upload.array('files', Config.MAX_UPLOAD_FILES);
   }
 
   /**
