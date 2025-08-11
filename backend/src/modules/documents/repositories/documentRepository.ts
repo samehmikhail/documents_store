@@ -26,24 +26,24 @@ export class DocumentRepository implements IRepository<Document> {
    * Find documents based on role and user access
    * - Admins see all tenant documents
    * - Regular users see tenant-level docs + their own private docs
+   * Since each tenant has its own database, we don't need to filter by tenant_id
    */
-  async findByAccessLevel(tenantId: string, userId: string, userRole: 'admin' | 'user'): Promise<Document[]> {
+  async findByAccessLevel(userId: string, userRole: 'admin' | 'user'): Promise<Document[]> {
     let query: string;
     let params: string[];
 
     if (userRole === 'admin') {
-      // Admins see all tenant documents
-      query = 'SELECT * FROM documents WHERE tenant_id = ? ORDER BY created_at DESC';
-      params = [tenantId];
+      // Admins see all documents in the tenant database
+      query = 'SELECT * FROM documents ORDER BY created_at DESC';
+      params = [];
     } else {
       // Regular users see tenant-level docs + their own private docs
       query = `
         SELECT * FROM documents 
-        WHERE tenant_id = ? 
-        AND (visibility = 'tenant' OR (visibility = 'private' AND owner_id = ?))
+        WHERE visibility = 'tenant' OR (visibility = 'private' AND owner_id = ?)
         ORDER BY created_at DESC
       `;
-      params = [tenantId, userId];
+      params = [userId];
     }
 
     const rows = await this.database.query(query, params);
@@ -67,12 +67,12 @@ export class DocumentRepository implements IRepository<Document> {
 
     await this.database.run(
       `INSERT INTO documents (
-        id, name, content, tenant_id, owner_id, visibility,
+        id, name, content, owner_id, visibility,
         file_name, file_path, file_size, mime_type, file_uuid,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        id, entity.name, entity.content, entity.tenantId, entity.ownerId, entity.visibility,
+        id, entity.name, entity.content, entity.ownerId, entity.visibility,
         entity.fileName || null, entity.filePath || null, entity.fileSize || null, 
         entity.mimeType || null, entity.fileUuid || null,
         now, now
@@ -124,7 +124,6 @@ export class DocumentRepository implements IRepository<Document> {
       id: row.id,
       name: row.name,
       content: row.content,
-      tenantId: row.tenant_id,
       ownerId: row.owner_id,
       visibility: row.visibility,
       fileName: row.file_name,
