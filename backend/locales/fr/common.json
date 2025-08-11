@@ -4,6 +4,10 @@
     "error": "Erreur interne du serveur"
   },
   "validation": {
-    "required": "Ce champ est obligatoire"
+  "required": "Ce champ est obligatoire",
+  "invalid_id": "ID de document invalide",
+  "file_or_content_required": "Un fichier ou un contenu est requis",
+  "name_required": "Le nom est requis",
+  "invalid_visibility": "Niveau de visibilité invalide"
   }
 }

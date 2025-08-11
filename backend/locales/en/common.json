@@ -4,6 +4,10 @@
     "error": "Internal server error"
   },
   "validation": {
-    "required": "This field is required"
+  "required": "This field is required",
+  "invalid_id": "Invalid document ID",
+  "file_or_content_required": "Either file or content is required",
+  "name_required": "Name is required",
+  "invalid_visibility": "Invalid visibility level"
   }
 }

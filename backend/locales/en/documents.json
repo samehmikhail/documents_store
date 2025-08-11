@@ -1,5 +1,14 @@
 {
   "uploaded": "Document uploaded successfully",
   "deleted": "Document deleted successfully",
-  "notFound": "Document not found"
+  "notFound": "Document not found",
+  "loaded": "Documents loaded successfully",
+  "not_found": "Document not found",
+  "access_denied": "Access denied",
+  "created": "Document created successfully",
+  "not_file": "Document is not a file",
+  "file_not_found": "File not found",
+  "updated": "Document updated successfully",
+  "modify_denied": "Permission denied",
+  "delete_denied": "Permission denied"
 }

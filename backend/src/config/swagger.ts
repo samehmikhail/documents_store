@@ -156,7 +156,7 @@ const options = {
       }
     }
   },
-  apis: ['./src/routes/*.ts'], // Path to the API files
+  apis: ['./src/routes/*.ts', './src/modules/**/*.ts'], // Include module routes for Swagger scanning
 };
 
 export const swaggerSpec = swaggerJSDoc(options);

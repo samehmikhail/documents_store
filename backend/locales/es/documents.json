@@ -1,5 +1,14 @@
 {
   "uploaded": "Documento subido exitosamente",
   "deleted": "Documento eliminado exitosamente",
-  "notFound": "Documento no encontrado"
+  "notFound": "Documento no encontrado",
+  "loaded": "Documentos cargados exitosamente",
+  "not_found": "Documento no encontrado",
+  "access_denied": "Acceso denegado",
+  "created": "Documento creado exitosamente",
+  "not_file": "El documento no es un archivo",
+  "file_not_found": "Archivo no encontrado",
+  "updated": "Documento actualizado exitosamente",
+  "modify_denied": "Permiso denegado",
+  "delete_denied": "Permiso denegado"
 }

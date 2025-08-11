@@ -1,5 +1,14 @@
 {
   "uploaded": "Document téléchargé avec succès",
   "deleted": "Document supprimé avec succès",
-  "notFound": "Document non trouvé"
+  "notFound": "Document non trouvé",
+  "loaded": "Documents chargés avec succès",
+  "not_found": "Document non trouvé",
+  "access_denied": "Accès refusé",
+  "created": "Document créé avec succès",
+  "not_file": "Le document n'est pas un fichier",
+  "file_not_found": "Fichier non trouvé",
+  "updated": "Document mis à jour avec succès",
+  "modify_denied": "Permission refusée",
+  "delete_denied": "Permission refusée"
 }
