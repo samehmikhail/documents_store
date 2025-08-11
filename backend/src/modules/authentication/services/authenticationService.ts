@@ -8,7 +8,7 @@ export class AuthenticationService {
   private userRepository: UserRepository;
   private tokenRepository: TokenRepository;
 
-  constructor(private database: IDatabase) {
+  constructor(database: IDatabase) {
     this.userRepository = new UserRepository(database);
     this.tokenRepository = new TokenRepository(database);
   }
@@ -35,7 +35,7 @@ export class AuthenticationService {
     }
   }
 
-  async createUser(username: string, role: 'admin' | 'user' = 'user'): Promise<UserWithToken> {
+  async createUser(username: string, role: 'admin' | 'user' = 'user', defaultToken: string|undefined): Promise<UserWithToken> {
     try {
       // Check if username already exists
       const existingUser = await this.userRepository.findByUsername(username);
@@ -47,7 +47,7 @@ export class AuthenticationService {
       const user = await this.userRepository.create({ username, role });
 
       // Generate and create token
-      const tokenValue = this.generateToken();
+      const tokenValue = defaultToken ?? this.generateToken();
       const token = await this.tokenRepository.create({
         token: tokenValue,
         userId: user.id
