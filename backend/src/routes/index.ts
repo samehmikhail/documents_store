@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { TenantRequest } from '../types/tenant';
+import { TenantRequest } from '../modules/multi-tenant/types/tenant';
 import { databaseManager } from '../database/manager';
-import { DocumentRepository } from '../repositories/documentRepository';
+import { DocumentRepository } from '../modules/documents/repositories/documentRepository';
 
 const router = Router();
 

@@ -5,8 +5,8 @@ import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import { Config } from './config';
 import { swaggerSpec } from './config/swagger';
-import { localizationMiddleware } from './middleware/localization';
-import { tenantMiddleware } from './middleware/tenant';
+import { localizationMiddleware } from './config/localization';
+import { tenantMiddleware } from './modules/multi-tenant/middleware/tenant';
 import apiRoutes from './routes';
 
 const app = express();

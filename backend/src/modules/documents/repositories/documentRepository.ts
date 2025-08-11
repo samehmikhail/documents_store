@@ -1,4 +1,4 @@
-import { IRepository, IDatabase } from '../database/interfaces';
+import { IRepository, IDatabase } from '../../../database/interfaces';
 import { Document } from '../types/document';
 import { v4 as uuidv4 } from 'uuid';
 
