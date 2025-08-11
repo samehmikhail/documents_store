@@ -1,0 +1,9 @@
+{
+  "welcome": "Bienvenue",
+  "server": {
+    "error": "Erreur interne du serveur"
+  },
+  "validation": {
+    "required": "Ce champ est obligatoire"
+  }
+}

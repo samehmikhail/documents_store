@@ -6,6 +6,7 @@ import swaggerUi from 'swagger-ui-express';
 import { Config } from './config';
 import { swaggerSpec } from './config/swagger';
 import { localizationMiddleware } from './middleware/localization';
+import { tenantMiddleware } from './middleware/tenant';
 import apiRoutes from './routes';
 
 const app = express();
@@ -36,20 +37,19 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'Documents Store API Documentation'
 }));
 
-// API routes
-app.use('/api', apiRoutes);
-
-// Root endpoint
+// Root endpoint (no tenant required)
 app.get('/', (req, res) => {
-  const localizedReq = req as any;
   res.json({
     success: true,
-    message: `${localizedReq.t?.('welcome') || 'Welcome'} to Documents Store API`,
+    message: `${req.t?.('welcome') || 'Welcome'} to Documents Store API`,
     version: '1.0.0',
     documentation: '/api-docs',
     health: '/api/health'
   });
 });
+
+// Apply tenant middleware to all API routes
+app.use('/api', tenantMiddleware, apiRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -64,10 +64,9 @@ app.use((req, res) => {
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Unhandled error:', err);
   
-  const localizedReq = req as any;
   res.status(err.status || 500).json({
     success: false,
-    message: localizedReq.t?.('server.error') || 'Internal server error',
+    message: req.t?.('server.error') || 'Internal server error',
     ...(Config.NODE_ENV === 'development' && { error: err.message, stack: err.stack })
   });
 });
