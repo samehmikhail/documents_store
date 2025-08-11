@@ -11,3 +11,6 @@ Instructions coming from the task description have higher priority than this fil
 - make sure you do proper logging with every change.
 - logging mustn't disclose any sensitive data.
 - you must update tests for every change.
+- Environement variables must be defined and used from src/config.
+- Make sure to not use deperacted API from used libraries.
+- Never generate demo data within written code, unless explicitly requested. 
