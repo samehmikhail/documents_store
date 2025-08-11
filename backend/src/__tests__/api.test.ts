@@ -1,6 +1,7 @@
 import request from 'supertest';
 import app from '../app';
 import { databaseManager } from '../database/manager';
+import { tenantStore } from '../modules/multi-tenant/services/tenantStore';
 import fs from 'fs/promises';
 
 describe('Multi-Tenant API', () => {
@@ -12,6 +13,11 @@ describe('Multi-Tenant API', () => {
     } catch (error) {
       // Ignore if directory doesn't exist
     }
+    
+    // Set up demo tenants for tests
+    tenantStore.addTenant('tenant1', 'Demo Tenant 1', true);
+    tenantStore.addTenant('tenant2', 'Demo Tenant 2', true);
+    tenantStore.addTenant('tenant3', 'Demo Tenant 3', false);
   });
 
   afterAll(async () => {

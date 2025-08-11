@@ -6,13 +6,10 @@ class TenantStore {
   private tenants: Map<string, Tenant> = new Map();
 
   constructor() {
-    // Initialize with some demo tenants
-    this.addTenant('tenant1', 'Demo Tenant 1', true);
-    this.addTenant('tenant2', 'Demo Tenant 2', true);
-    this.addTenant('tenant3', 'Demo Tenant 3', false);
+    // Empty constructor - no demo data
   }
 
-  private addTenant(id: string, name: string, isActive: boolean): void {
+  addTenant(id: string, name: string, isActive: boolean): void {
     const tenant: Tenant = {
       id,
       name,

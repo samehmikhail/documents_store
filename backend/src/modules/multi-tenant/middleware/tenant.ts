@@ -9,7 +9,7 @@ export const tenantMiddleware = (req: Request, res: Response, next: NextFunction
   if (!tenantId) {
     res.status(400).json({
       success: false,
-      message: 'Tenant ID is required. Please provide X-TENANT-ID header.',
+      message: req.t('auth:tenantIdMissing'),
       code: 'TENANT_ID_MISSING'
     });
     return;
@@ -19,7 +19,7 @@ export const tenantMiddleware = (req: Request, res: Response, next: NextFunction
   if (!tenantStore.isValidTenant(tenantId)) {
     res.status(404).json({
       success: false,
-      message: 'Invalid or inactive tenant ID.',
+      message: req.t('auth:tenantInvalid'),
       code: 'TENANT_INVALID'
     });
     return;

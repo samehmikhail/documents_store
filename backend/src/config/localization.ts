@@ -30,8 +30,6 @@ i18next
     interpolation: {
       escapeValue: false, // Not needed for server-side
     },
-    
-    initImmediate: false, // Important for server-side
   });
 
 export const localizationMiddleware = middleware.handle(i18next);

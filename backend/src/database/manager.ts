@@ -1,6 +1,7 @@
 import path from 'path';
 import { SQLiteDatabase } from './sqlite';
 import { IDatabase } from './interfaces';
+import { Config } from '../config';
 
 // Manages per-tenant database connections
 export class DatabaseManager {
@@ -9,7 +10,7 @@ export class DatabaseManager {
   private dbDirectory: string;
 
   private constructor() {
-    this.dbDirectory = process.env.DB_DIRECTORY || path.join(process.cwd(), 'databases');
+    this.dbDirectory = path.resolve(Config.DB_DIRECTORY);
   }
 
   static getInstance(): DatabaseManager {
@@ -49,14 +50,6 @@ export class DatabaseManager {
     `);
     
     // Add more tables as needed
-  }
-
-  async closeConnection(tenantId: string): Promise<void> {
-    const connection = this.connections.get(tenantId);
-    if (connection) {
-      await connection.close();
-      this.connections.delete(tenantId);
-    }
   }
 
   async closeAllConnections(): Promise<void> {
