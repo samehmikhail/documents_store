@@ -119,67 +119,30 @@ export class DocumentController {
     }
   }
 
-  /**
-   * Create a text document
-   */
-  async createTextDocument(req: Request, res: Response): Promise<void> {
-    try {
-      const authenticatedReq = req as AuthenticatedRequest;
-      const { name, content, visibility = 'private' } = req.body;
-
-      if (!name || !content) {
-        res.status(400).json({
-          success: false,
-          message: req.t?.('validation.required') || 'Name and content are required'
-        });
-        return;
-      }
-
-      if (!['tenant', 'private'].includes(visibility)) {
-        res.status(400).json({
-          success: false,
-          message: req.t?.('validation.invalid_visibility') || 'Invalid visibility level'
-        });
-        return;
-      }
-
-      const database = await databaseManager.getDatabase(authenticatedReq.tenantId);
-      const documentRepo = new DocumentRepository(database);
-      
-      const document = await documentRepo.create({
-        name,
-        content,
-        ownerId: authenticatedReq.user.id,
-        visibility: visibility as 'tenant' | 'private'
-      });
-      
-      res.status(201).json({
-        success: true,
-        message: req.t?.('documents:created') || 'Document created successfully',
-        data: document
-      });
-    } catch (error) {
-      console.error('Error creating document:', error);
-      res.status(500).json({
-        success: false,
-        message: req.t?.('server.error') || 'Internal server error'
-      });
-    }
-  }
 
   /**
-   * Upload a file document
+   * Upload a file document or create a text document
    */
   async uploadDocument(req: Request, res: Response): Promise<void> {
     try {
       const authenticatedReq = req as AuthenticatedRequest;
-      const { name, visibility = 'private' } = req.body;
+      const { name, content, visibility = 'private' } = req.body;
       const file = req.file;
 
-      if (!file) {
+      // Validate that either file or content is provided
+      if (!file && !content) {
         res.status(400).json({
           success: false,
-          message: req.t?.('validation.file_required') || 'File is required'
+          message: req.t?.('validation.file_or_content_required') || 'Either file or content is required'
+        });
+        return;
+      }
+
+      // Validate name is provided
+      if (!name) {
+        res.status(400).json({
+          success: false,
+          message: req.t?.('validation.name_required') || 'Name is required'
         });
         return;
       }
@@ -192,31 +155,45 @@ export class DocumentController {
         return;
       }
 
-      // Store file using storage service
-      const storageResult = await this.storageService.storeFile(
-        file.buffer,
-        file.originalname,
-        file.mimetype
-      );
-
       const database = await databaseManager.getDatabase(authenticatedReq.tenantId);
       const documentRepo = new DocumentRepository(database);
       
-      const document = await documentRepo.create({
-        name: name || file.originalname,
-        content: '', // Empty for file uploads
-        ownerId: authenticatedReq.user.id,
-        visibility: visibility as 'tenant' | 'private',
-        fileName: file.originalname,
-        filePath: storageResult.filePath,
-        fileSize: storageResult.fileSize,
-        mimeType: storageResult.mimeType,
-        fileUuid: storageResult.fileUuid
-      });
+      let document;
+      
+      if (file) {
+        // Handle file upload
+        const storageResult = await this.storageService.storeFile(
+          file.buffer,
+          file.originalname,
+          file.mimetype
+        );
+
+        document = await documentRepo.create({
+          name,
+          content: content || '', // Optional content for file uploads
+          ownerId: authenticatedReq.user.id,
+          visibility: visibility as 'tenant' | 'private',
+          fileName: file.originalname,
+          filePath: storageResult.filePath,
+          fileSize: storageResult.fileSize,
+          mimeType: storageResult.mimeType,
+          fileUuid: storageResult.fileUuid
+        });
+      } else {
+        // Handle text document creation
+        document = await documentRepo.create({
+          name,
+          content,
+          ownerId: authenticatedReq.user.id,
+          visibility: visibility as 'tenant' | 'private'
+        });
+      }
       
       res.status(201).json({
         success: true,
-        message: req.t?.('documents:uploaded') || 'Document uploaded successfully',
+        message: file 
+          ? (req.t?.('documents:uploaded') || 'Document uploaded successfully')
+          : (req.t?.('documents:created') || 'Document created successfully'),
         data: document
       });
     } catch (error) {

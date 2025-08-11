@@ -115,64 +115,52 @@ describe('Document Management API', () => {
 
   describe('Document Creation', () => {
     it('should create text document with private visibility', async () => {
-      const documentData = {
-        name: 'Test Document',
-        content: 'This is test content',
-        visibility: 'private'
-      };
-
       const response = await request(app)
-        .post('/api/documents')
+        .post('/api/documents/upload')
         .set('X-Tenant-Id', testTenantId)
         .set('X-User-Token', regularUserToken)
-        .send(documentData)
+        .field('name', 'Test Document')
+        .field('content', 'This is test content')
+        .field('visibility', 'private')
         .expect(201);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.data.name).toBe(documentData.name);
-      expect(response.body.data.content).toBe(documentData.content);
+      expect(response.body.data.name).toBe('Test Document');
+      expect(response.body.data.content).toBe('This is test content');
       expect(response.body.data.visibility).toBe('private');
       expect(response.body.data.ownerId).toBe(regularUser.id);
     });
 
     it('should create text document with tenant visibility', async () => {
-      const documentData = {
-        name: 'Tenant Document',
-        content: 'This is tenant content',
-        visibility: 'tenant'
-      };
-
       const response = await request(app)
-        .post('/api/documents')
+        .post('/api/documents/upload')
         .set('X-Tenant-Id', testTenantId)
         .set('X-User-Token', adminToken)
-        .send(documentData)
+        .field('name', 'Tenant Document')
+        .field('content', 'This is tenant content')
+        .field('visibility', 'tenant')
         .expect(201);
 
       expect(response.body.data.visibility).toBe('tenant');
     });
 
     it('should reject invalid visibility levels', async () => {
-      const documentData = {
-        name: 'Test Document',
-        content: 'This is test content',
-        visibility: 'invalid'
-      };
-
       await request(app)
-        .post('/api/documents')
+        .post('/api/documents/upload')
         .set('X-Tenant-Id', testTenantId)
         .set('X-User-Token', regularUserToken)
-        .send(documentData)
+        .field('name', 'Test Document')
+        .field('content', 'This is test content')
+        .field('visibility', 'invalid')
         .expect(400);
     });
 
     it('should require name and content', async () => {
       await request(app)
-        .post('/api/documents')
+        .post('/api/documents/upload')
         .set('X-Tenant-Id', testTenantId)
         .set('X-User-Token', regularUserToken)
-        .send({})
+        .field('name', '')
         .expect(400);
     });
   });

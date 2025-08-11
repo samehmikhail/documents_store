@@ -159,52 +159,18 @@ router.get('/documents', documentController.getDocuments.bind(documentController
  */
 router.get('/documents/:id', documentController.getDocumentById.bind(documentController));
 
-/**
- * @swagger
- * /api/documents:
- *   post:
- *     summary: Create a new text document
- *     security:
- *       - TenantAuth: []
- *       - UserTokenAuth: []
- *     parameters:
- *       - $ref: '#/components/parameters/TenantId'
- *       - $ref: '#/components/parameters/UserToken'
- *       - $ref: '#/components/parameters/AcceptLanguage'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/DocumentRequest'
- *     responses:
- *       201:
- *         description: Document created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   $ref: '#/components/schemas/Document'
- *       400:
- *         $ref: '#/components/responses/BadRequestError'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       500:
- *         $ref: '#/components/responses/InternalServerError'
- */
-router.post('/documents', documentController.createTextDocument.bind(documentController));
+
 
 /**
  * @swagger
  * /api/documents/upload:
  *   post:
- *     summary: Upload a file document
+ *     summary: Upload a file document or create a text document
+ *     description: |
+ *       This endpoint supports both file uploads and text document creation through multipart form data.
+ *       - For file uploads: provide 'file' and optional 'name', 'content', 'visibility'
+ *       - For text documents: provide 'name', 'content', and optional 'visibility' (no file)
+ *       Either 'file' or 'content' is required, but not both.
  *     security:
  *       - TenantAuth: []
  *       - UserTokenAuth: []
@@ -222,20 +188,36 @@ router.post('/documents', documentController.createTextDocument.bind(documentCon
  *               file:
  *                 type: string
  *                 format: binary
- *                 description: File to upload
+ *                 description: File to upload (optional - not needed for text documents)
  *               name:
  *                 type: string
- *                 description: Optional document name (uses filename if not provided)
+ *                 description: Document name (required)
+ *               content:
+ *                 type: string
+ *                 description: Document content (required for text documents, optional for file uploads)
  *               visibility:
  *                 type: string
  *                 enum: [tenant, private]
  *                 default: private
  *                 description: Document visibility level
  *             required:
- *               - file
+ *               - name
+ *           examples:
+ *             fileUpload:
+ *               summary: File upload example
+ *               value:
+ *                 file: "[binary data]"
+ *                 name: "My Document"
+ *                 visibility: "private"
+ *             textDocument:
+ *               summary: Text document example
+ *               value:
+ *                 name: "My Text Document"
+ *                 content: "This is the document content"
+ *                 visibility: "tenant"
  *     responses:
  *       201:
- *         description: Document uploaded successfully
+ *         description: Document uploaded or created successfully
  *         content:
  *           application/json:
  *             schema:
