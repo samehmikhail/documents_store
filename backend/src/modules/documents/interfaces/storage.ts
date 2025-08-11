@@ -2,7 +2,7 @@ export interface StorageInterface {
   /**
    * Store a file and return its metadata
    */
-  storeFile(file: Buffer, originalName: string, mimeType: string): Promise<StorageResult>;
+  storeFile(file: Buffer, originalName: string, mimeType: string): Promise<FileMetadata>;
 
   /**
    * Retrieve a file by its UUID
@@ -23,13 +23,6 @@ export interface StorageInterface {
    * Get file metadata
    */
   getFileMetadata(fileUuid: string): Promise<FileMetadata | null>;
-}
-
-export interface StorageResult {
-  fileUuid: string;
-  filePath: string;
-  fileSize: number;
-  mimeType: string;
 }
 
 export interface FileMetadata {

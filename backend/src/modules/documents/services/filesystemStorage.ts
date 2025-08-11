@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { StorageInterface, StorageResult, FileMetadata } from '../interfaces/storage';
+import { StorageInterface, FileMetadata } from '../interfaces/storage';
 import { Config } from '../../../config';
 
 export class FilesystemStorage implements StorageInterface {
@@ -20,21 +20,24 @@ export class FilesystemStorage implements StorageInterface {
     }
   }
 
-  async storeFile(file: Buffer, originalName: string, mimeType: string): Promise<StorageResult> {
-    const fileUuid = uuidv4();
-    const extension = path.extname(originalName);
-    const fileName = `${fileUuid}${extension}`;
-    const filePath = path.join(this.storageDir, fileName);
+    async storeFile(file: Buffer, originalName: string, mimeType: string): Promise<FileMetadata> {
+        const fileUuid = uuidv4();
+        const extension = path.extname(originalName);
+        const fileName = `${fileUuid}${extension}`;
+        const filePath = path.join(this.storageDir, fileName);
 
-    await fs.writeFile(filePath, file);
+        await fs.writeFile(filePath, file);
 
-    return {
-      fileUuid,
-      filePath,
-      fileSize: file.length,
-      mimeType
-    };
-  }
+        const stats = await fs.stat(filePath);
+
+        return {
+            fileUuid,
+            filePath,
+            fileSize: file.length,
+            mimeType,
+            createdAt: stats.birthtime
+        };
+    }
 
   async getFile(fileUuid: string): Promise<Buffer | null> {
     try {
@@ -84,7 +87,7 @@ export class FilesystemStorage implements StorageInterface {
       }
       
       const stats = await fs.stat(filePath);
-      
+
       return {
         fileUuid,
         filePath,
