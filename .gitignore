@@ -38,3 +38,7 @@ coverage/
 # Uploads (development)
 backend/uploads/*
 !backend/uploads/.gitkeep
+
+# Database files (runtime generated)
+backend/databases/
+*.db
