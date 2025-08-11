@@ -8,16 +8,13 @@ describe('Authentication API', () => {
   const testUserToken = 'test-auth-token-123';
 
   beforeAll(async () => {
-    // Register the test tenant
-    const { tenantStore } = await import('../modules/multi-tenant/services/tenantStore');
-    tenantStore.addTenant(testTenantId, 'Test Authentication Tenant', true);
-    
     // Set up test user and token for the test tenant
+    // Creating database will automatically make the tenant discoverable
     const database = await databaseManager.getDatabase(testTenantId);
     const authService = new AuthenticationService(database);
     
     // Create a test user with token
-    const userWithToken = await authService.createUser('testuser', 'admin');
+    const userWithToken = await authService.createUser('testuser', 'admin', undefined);
     
     // Update the token to a known value for testing
     if (userWithToken.token) {
@@ -131,7 +128,7 @@ describe('Authentication API', () => {
       expect(response.body.user).toBeDefined();
       expect(response.body.user.username).toBe('testuser');
       expect(response.body.user.role).toBe('admin');
-      expect(response.body.tenant).toBe('Test Authentication Tenant'); // This returns tenant name, not ID
+      expect(response.body.tenant).toBe(testTenantId); // Now returns tenant ID
     });
   });
 

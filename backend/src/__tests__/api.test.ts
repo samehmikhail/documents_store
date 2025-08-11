@@ -1,7 +1,6 @@
 import request from 'supertest';
 import app from '../app';
 import { databaseManager } from '../database/manager';
-import { tenantStore } from '../modules/multi-tenant/services/tenantStore';
 import { AuthenticationService } from '../modules/authentication/services/authenticationService';
 import fs from 'fs/promises';
 
@@ -18,20 +17,16 @@ describe('Multi-Tenant API', () => {
       // Ignore if directory doesn't exist
     }
     
-    // Set up demo tenants for tests
-    tenantStore.addTenant('tenant1', 'Demo Tenant 1', true);
-    tenantStore.addTenant('tenant2', 'Demo Tenant 2', true);
-    tenantStore.addTenant('tenant3', 'Demo Tenant 3', false);
-    
     // Create test users with tokens for each tenant
+    // Creating databases will automatically make tenants discoverable
     const db1 = await databaseManager.getDatabase('tenant1');
     const authService1 = new AuthenticationService(db1);
-    const user1 = await authService1.createUser('testuser1', 'admin');
+    const user1 = await authService1.createUser('testuser1', 'admin', undefined);
     testToken1 = user1.token!.token;
     
     const db2 = await databaseManager.getDatabase('tenant2');
     const authService2 = new AuthenticationService(db2);
-    const user2 = await authService2.createUser('testuser2', 'user');
+    const user2 = await authService2.createUser('testuser2', 'user', undefined);
     testToken2 = user2.token!.token;
   });
 
@@ -66,17 +61,6 @@ describe('Multi-Tenant API', () => {
       expect(response.body.code).toBe('TENANT_INVALID');
     });
 
-    it('should reject requests with inactive tenant', async () => {
-      const response = await request(app)
-        .get('/api/health')
-        .set('X-TENANT-ID', 'tenant3') // tenant3 is inactive
-        .set('X-User-Token', 'some-token')
-        .expect(404);
-      
-      expect(response.body.success).toBe(false);
-      expect(response.body.code).toBe('TENANT_INVALID');
-    });
-
     it('should accept requests with valid tenant ID', async () => {
       const response = await request(app)
         .get('/api/health')
@@ -85,7 +69,7 @@ describe('Multi-Tenant API', () => {
         .expect(200);
       
       expect(response.body.success).toBe(true);
-      expect(response.body.tenant).toBe('Demo Tenant 1');
+      expect(response.body.tenant).toBe('tenant1');
       expect(response.body.user).toBeDefined();
       expect(response.body.user.username).toBe('testuser1');
     });

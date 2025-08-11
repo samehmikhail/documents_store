@@ -31,7 +31,7 @@ describe('Authentication Service', () => {
 
   describe('User Creation', () => {
     test('should create a new user with default role', async () => {
-      const userWithToken = await authService.createUser('testuser');
+      const userWithToken = await authService.createUser('testuser', 'user', undefined);
       
       expect(userWithToken.id).toBeDefined();
       expect(userWithToken.username).toBe('testuser');
@@ -42,7 +42,7 @@ describe('Authentication Service', () => {
     });
 
     test('should create a new user with admin role', async () => {
-      const userWithToken = await authService.createUser('adminuser', 'admin');
+      const userWithToken = await authService.createUser('adminuser', 'admin', undefined);
       
       expect(userWithToken.username).toBe('adminuser');
       expect(userWithToken.role).toBe('admin');
@@ -50,15 +50,15 @@ describe('Authentication Service', () => {
     });
 
     test('should not create user with duplicate username', async () => {
-      await authService.createUser('duplicateuser');
+      await authService.createUser('duplicateuser', 'user', undefined);
       
-      await expect(authService.createUser('duplicateuser')).rejects.toThrow('Username already exists');
+      await expect(authService.createUser('duplicateuser', 'user', undefined)).rejects.toThrow('Username already exists');
     });
   });
 
   describe('Token Authentication', () => {
     test('should find user by valid token', async () => {
-      const createdUser = await authService.createUser('tokenuser');
+      const createdUser = await authService.createUser('tokenuser', 'user', undefined);
       const token = createdUser.token!.token;
       
       const foundUser = await authService.findUserByToken(token);
@@ -82,7 +82,7 @@ describe('Authentication Service', () => {
 
   describe('Token Management', () => {
     test('should regenerate token for existing user', async () => {
-      const createdUser = await authService.createUser('regenuser');
+      const createdUser = await authService.createUser('regenuser', 'user', undefined);
       const originalToken = createdUser.token!.token;
       
       const newToken = await authService.regenerateToken(createdUser.id);
@@ -102,7 +102,7 @@ describe('Authentication Service', () => {
     });
 
     test('should delete token for user', async () => {
-      const createdUser = await authService.createUser('deleteuser');
+      const createdUser = await authService.createUser('deleteuser', 'user', undefined);
       const token = createdUser.token!.token;
       
       const deleted = await authService.deleteToken(createdUser.id);
@@ -116,7 +116,7 @@ describe('Authentication Service', () => {
 
   describe('User Queries', () => {
     test('should find user by ID', async () => {
-      const createdUser = await authService.createUser('iduser');
+      const createdUser = await authService.createUser('iduser', 'user', undefined);
       
       const foundUser = await authService.getUserById(createdUser.id);
       
@@ -126,7 +126,7 @@ describe('Authentication Service', () => {
     });
 
     test('should find user by username', async () => {
-      const createdUser = await authService.createUser('nameuser');
+      const createdUser = await authService.createUser('nameuser', 'user', undefined);
       
       const foundUser = await authService.getUserByUsername('nameuser');
       

@@ -37,7 +37,7 @@ router.get('/health', (req, res) => {
     success: true,
     message: req.t?.('welcome') || 'API is running',
     timestamp: new Date().toISOString(),
-    tenant: authenticatedReq.tenant?.name || authenticatedReq.tenantId,
+    tenant: authenticatedReq.tenant?.id || authenticatedReq.tenantId,
     user: {
       username: authenticatedReq.user.username,
       role: authenticatedReq.user.role
