@@ -49,6 +49,42 @@ export class DatabaseManager {
       )
     `);
     
+    // Create users table for authentication
+    await database.run(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        username TEXT NOT NULL UNIQUE,
+        role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('admin', 'user')),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
+    // Create tokens table for user authentication (1:1 relationship with users)
+    await database.run(`
+      CREATE TABLE IF NOT EXISTS tokens (
+        id TEXT PRIMARY KEY,
+        token TEXT NOT NULL UNIQUE,
+        user_id TEXT NOT NULL UNIQUE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      )
+    `);
+    
+    // Create indexes for better performance
+    await database.run(`
+      CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)
+    `);
+    
+    await database.run(`
+      CREATE INDEX IF NOT EXISTS idx_tokens_token ON tokens(token)
+    `);
+    
+    await database.run(`
+      CREATE INDEX IF NOT EXISTS idx_tokens_user_id ON tokens(user_id)
+    `);
+    
     // Add more tables as needed
   }
 

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { TenantRequest } from '../modules/multi-tenant/types/tenant';
+import { AuthenticatedRequest } from '../modules/authentication/middleware/authentication';
 import { databaseManager } from '../database/manager';
 import { DocumentRepository } from '../modules/documents/repositories/documentRepository';
 
@@ -10,8 +11,12 @@ const router = Router();
  * /api/health:
  *   get:
  *     summary: Health check endpoint
+ *     security:
+ *       - TenantAuth: []
+ *       - UserTokenAuth: []
  *     parameters:
  *       - $ref: '#/components/parameters/TenantId'
+ *       - $ref: '#/components/parameters/UserToken'
  *       - $ref: '#/components/parameters/AcceptLanguage'
  *     responses:
  *       200:
@@ -22,16 +27,22 @@ const router = Router();
  *               $ref: '#/components/schemas/Success'
  *       400:
  *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.get('/health', (req, res) => {
-  const tenantReq = req as TenantRequest;
+  const authenticatedReq = req as AuthenticatedRequest;
   res.json({
     success: true,
     message: req.t?.('welcome') || 'API is running',
     timestamp: new Date().toISOString(),
-    tenant: tenantReq.tenant?.name || tenantReq.tenantId
+    tenant: authenticatedReq.tenant?.name || authenticatedReq.tenantId,
+    user: {
+      username: authenticatedReq.user.username,
+      role: authenticatedReq.user.role
+    }
   });
 });
 
@@ -40,8 +51,12 @@ router.get('/health', (req, res) => {
  * /api/documents:
  *   get:
  *     summary: Get all documents for the tenant
+ *     security:
+ *       - TenantAuth: []
+ *       - UserTokenAuth: []
  *     parameters:
  *       - $ref: '#/components/parameters/TenantId'
+ *       - $ref: '#/components/parameters/UserToken'
  *       - $ref: '#/components/parameters/AcceptLanguage'
  *     responses:
  *       200:
@@ -52,13 +67,15 @@ router.get('/health', (req, res) => {
  *               $ref: '#/components/schemas/Success'
  *       400:
  *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.get('/documents', async (req, res) => {
   try {
-    const tenantReq = req as TenantRequest;
-    const database = await databaseManager.getDatabase(tenantReq.tenantId);
+    const authenticatedReq = req as AuthenticatedRequest;
+    const database = await databaseManager.getDatabase(authenticatedReq.tenantId);
     const documentRepo = new DocumentRepository(database);
     
     const documents = await documentRepo.findAll();
@@ -67,7 +84,8 @@ router.get('/documents', async (req, res) => {
       success: true,
       message: req.t?.('documents:loaded', 'Documents loaded successfully'),
       data: documents,
-      tenant: tenantReq.tenantId
+      tenant: authenticatedReq.tenantId,
+      user: authenticatedReq.user.username
     });
   } catch (error) {
     console.error('Error fetching documents:', error);
@@ -83,8 +101,12 @@ router.get('/documents', async (req, res) => {
  * /api/documents:
  *   post:
  *     summary: Create a new document
+ *     security:
+ *       - TenantAuth: []
+ *       - UserTokenAuth: []
  *     parameters:
  *       - $ref: '#/components/parameters/TenantId'
+ *       - $ref: '#/components/parameters/UserToken'
  *       - $ref: '#/components/parameters/AcceptLanguage'
  *     requestBody:
  *       required: true
@@ -111,12 +133,14 @@ router.get('/documents', async (req, res) => {
  *               $ref: '#/components/schemas/Success'
  *       400:
  *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.post('/documents', async (req, res) => {
   try {
-    const tenantReq = req as TenantRequest;
+    const authenticatedReq = req as AuthenticatedRequest;
     const { name, content } = req.body;
 
     if (!name || !content) {
@@ -127,7 +151,7 @@ router.post('/documents', async (req, res) => {
       return;
     }
 
-    const database = await databaseManager.getDatabase(tenantReq.tenantId);
+    const database = await databaseManager.getDatabase(authenticatedReq.tenantId);
     const documentRepo = new DocumentRepository(database);
     
     const document = await documentRepo.create({ name, content });
@@ -136,7 +160,8 @@ router.post('/documents', async (req, res) => {
       success: true,
       message: req.t?.('documents:uploaded') || 'Document created successfully',
       data: document,
-      tenant: tenantReq.tenantId
+      tenant: authenticatedReq.tenantId,
+      user: authenticatedReq.user.username
     });
   } catch (error) {
     console.error('Error creating document:', error);
