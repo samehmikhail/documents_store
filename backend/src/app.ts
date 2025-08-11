@@ -7,6 +7,7 @@ import { Config } from './config';
 import { swaggerSpec } from './config/swagger';
 import { localizationMiddleware } from './config/localization';
 import { tenantMiddleware } from './modules/multi-tenant/middleware/tenant';
+import { authenticationMiddleware } from './modules/authentication/middleware/authentication';
 import apiRoutes from './routes';
 
 // Helper registration functions to make middleware order explicit and easy to follow
@@ -63,7 +64,7 @@ function registerRootEndpoint(app: express.Express) {
 
 function registerMultiTenantChecker(app: express.Express) {
   // Apply tenant middleware to all API routes
-  app.use('/api', tenantMiddleware, apiRoutes);
+  app.use('/api', tenantMiddleware, authenticationMiddleware, apiRoutes);
 }
 
 function registerNotFound(app: express.Express) {

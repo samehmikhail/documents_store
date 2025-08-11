@@ -2,9 +2,13 @@ import request from 'supertest';
 import app from '../app';
 import { databaseManager } from '../database/manager';
 import { tenantStore } from '../modules/multi-tenant/services/tenantStore';
+import { AuthenticationService } from '../modules/authentication/services/authenticationService';
 import fs from 'fs/promises';
 
 describe('Multi-Tenant API', () => {
+  let testToken1: string;
+  let testToken2: string;
+  
   // Clean up databases before each test to ensure isolation
   beforeEach(async () => {
     try {
@@ -18,6 +22,17 @@ describe('Multi-Tenant API', () => {
     tenantStore.addTenant('tenant1', 'Demo Tenant 1', true);
     tenantStore.addTenant('tenant2', 'Demo Tenant 2', true);
     tenantStore.addTenant('tenant3', 'Demo Tenant 3', false);
+    
+    // Create test users with tokens for each tenant
+    const db1 = await databaseManager.getDatabase('tenant1');
+    const authService1 = new AuthenticationService(db1);
+    const user1 = await authService1.createUser('testuser1', 'admin');
+    testToken1 = user1.token!.token;
+    
+    const db2 = await databaseManager.getDatabase('tenant2');
+    const authService2 = new AuthenticationService(db2);
+    const user2 = await authService2.createUser('testuser2', 'user');
+    testToken2 = user2.token!.token;
   });
 
   afterAll(async () => {
@@ -33,6 +48,7 @@ describe('Multi-Tenant API', () => {
     it('should reject requests without X-TENANT-ID header', async () => {
       const response = await request(app)
         .get('/api/health')
+        .set('X-User-Token', 'some-token')
         .expect(400);
       
       expect(response.body.success).toBe(false);
@@ -43,6 +59,7 @@ describe('Multi-Tenant API', () => {
       const response = await request(app)
         .get('/api/health')
         .set('X-TENANT-ID', 'invalid-tenant')
+        .set('X-User-Token', 'some-token')
         .expect(404);
       
       expect(response.body.success).toBe(false);
@@ -53,6 +70,7 @@ describe('Multi-Tenant API', () => {
       const response = await request(app)
         .get('/api/health')
         .set('X-TENANT-ID', 'tenant3') // tenant3 is inactive
+        .set('X-User-Token', 'some-token')
         .expect(404);
       
       expect(response.body.success).toBe(false);
@@ -63,10 +81,13 @@ describe('Multi-Tenant API', () => {
       const response = await request(app)
         .get('/api/health')
         .set('X-TENANT-ID', 'tenant1')
+        .set('X-User-Token', testToken1)
         .expect(200);
       
       expect(response.body.success).toBe(true);
       expect(response.body.tenant).toBe('Demo Tenant 1');
+      expect(response.body.user).toBeDefined();
+      expect(response.body.user.username).toBe('testuser1');
     });
   });
 
@@ -104,11 +125,13 @@ describe('Multi-Tenant API', () => {
       const response = await request(app)
         .get('/api/documents')
         .set('X-TENANT-ID', validTenantId)
+        .set('X-User-Token', testToken1)
         .expect(200);
       
       expect(response.body.success).toBe(true);
       expect(response.body.data).toEqual([]);
       expect(response.body.tenant).toBe(validTenantId);
+      expect(response.body.user).toBe('testuser1');
     });
 
     it('should create a document for tenant', async () => {
@@ -120,6 +143,7 @@ describe('Multi-Tenant API', () => {
       const response = await request(app)
         .post('/api/documents')
         .set('X-TENANT-ID', validTenantId)
+        .set('X-User-Token', testToken1)
         .send(documentData)
         .expect(201);
       
@@ -139,6 +163,7 @@ describe('Multi-Tenant API', () => {
       await request(app)
         .post('/api/documents')
         .set('X-TENANT-ID', validTenantId)
+        .set('X-User-Token', testToken1)
         .send(documentData)
         .expect(201);
 
@@ -146,6 +171,7 @@ describe('Multi-Tenant API', () => {
       const response = await request(app)
         .get('/api/documents')
         .set('X-TENANT-ID', validTenantId)
+        .set('X-User-Token', testToken1)
         .expect(200);
       
       expect(response.body.success).toBe(true);
@@ -160,6 +186,7 @@ describe('Multi-Tenant API', () => {
       await request(app)
         .post('/api/documents')
         .set('X-TENANT-ID', validTenantId)
+        .set('X-User-Token', testToken1)
         .send({ name: 'Tenant 1 Doc', content: 'Content for tenant 1' })
         .expect(201);
       
@@ -167,6 +194,7 @@ describe('Multi-Tenant API', () => {
       const response = await request(app)
         .get('/api/documents')
         .set('X-TENANT-ID', tenant2)
+        .set('X-User-Token', testToken2)
         .expect(200);
       
       expect(response.body.success).toBe(true);
@@ -177,6 +205,7 @@ describe('Multi-Tenant API', () => {
       const response = await request(app)
         .post('/api/documents')
         .set('X-TENANT-ID', validTenantId)
+        .set('X-User-Token', testToken1)
         .send({ name: 'Test' }) // Missing content
         .expect(400);
       

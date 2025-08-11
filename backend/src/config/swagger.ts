@@ -17,6 +17,20 @@ const options = {
       },
     ],
     components: {
+      securitySchemes: {
+        UserTokenAuth: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'X-User-Token',
+          description: 'User authentication token'
+        },
+        TenantAuth: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'X-TENANT-ID',
+          description: 'Tenant identifier'
+        }
+      },
       parameters: {
         TenantId: {
           name: 'X-TENANT-ID',
@@ -26,6 +40,15 @@ const options = {
             type: 'string'
           },
           description: 'Tenant identifier required for all API operations'
+        },
+        UserToken: {
+          name: 'X-User-Token',
+          in: 'header',
+          required: true,
+          schema: {
+            type: 'string'
+          },
+          description: 'User authentication token required for authenticated operations'
         },
         AcceptLanguage: {
           name: 'Accept-Language',
@@ -86,6 +109,21 @@ const options = {
                 success: false,
                 message: 'Tenant ID is required. Please provide X-TENANT-ID header.',
                 code: 'TENANT_ID_MISSING'
+              }
+            }
+          }
+        },
+        UnauthorizedError: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Error'
+              },
+              example: {
+                success: false,
+                message: 'User token is required. Please provide X-User-Token header.',
+                code: 'USER_TOKEN_MISSING'
               }
             }
           }
