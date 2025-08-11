@@ -1,18 +1,14 @@
 # Documents Store Backend
 
-A Node.js/Express REST API service for document management with role-based access control and multi-locale support.
+A Node.js/Express REST API service with localization middleware and Swagger documentation.
 
 ## Features
 
 - **Express 5.1.0** - Modern Express framework
 - **TypeScript** - Type-safe development
-- **JWT Authentication** - Secure token-based authentication
-- **Role-based Access Control** - Admin, User, Guest roles
-- **Multi-locale Support** - English, Spanish, French
-- **In-memory Database** - Fast development setup
-- **File Upload/Storage** - Local file storage with metadata
+- **Localization Middleware** - English, Spanish, French
 - **Swagger Documentation** - Interactive API documentation
-- **Comprehensive Testing** - Jest test suite
+- **CORS & Helmet** - Basic security and CORS protection
 
 ## Quick Start
 
@@ -27,8 +23,8 @@ A Node.js/Express REST API service for document management with role-based acces
 # Install dependencies
 npm install
 
-# Copy environment variables
-cp .env.example .env
+# Configure environment variables (an example .env is provided in this folder)
+# You can edit ./.env or create it if missing
 
 # Build the project
 npm run build
@@ -42,32 +38,19 @@ npm run dev
 
 ### Development
 
-The development server starts on `http://localhost:3000` with:
+The development server starts on `http://localhost:3000` (configurable via .env) with:
 
-- API endpoints at `/api/*`
+- API routes mounted at `/api/*`
 - Swagger documentation at `/api-docs`
 - Health check at `/api/health`
+- Root endpoint at `/` returning a localized welcome message
 
-### Default Admin Account
-
-- **Username**: admin
-- **Password**: password
-- **Role**: admin
 
 ## API Endpoints
 
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/logout` - User logout
-
-### Documents (Protected)
-- `POST /api/documents/upload` - Upload document
-- `GET /api/documents` - Get all documents
-- `GET /api/documents/my` - Get user's documents
-- `GET /api/documents/:id` - Download document
-- `DELETE /api/documents/:id` - Delete document
-- `GET /api/documents/search?q=query` - Search documents
+- `GET /` - Root endpoint with localized welcome message
+- `GET /api/health` - Health check
+- `GET /api-docs` - Swagger UI documentation
 
 ## Multi-locale Support
 
@@ -84,15 +67,14 @@ Example: `GET /?locale=es` returns Spanish messages.
 
 ```
 src/
-├── controllers/     # Request handlers
-├── routes/         # Route definitions
-├── middleware/     # Custom middleware
-├── services/       # Business logic
-├── models/         # Data models & in-memory DB
-├── config/         # Configuration & Swagger
-├── types/          # TypeScript type definitions
-├── uploads/        # File storage directory
-└── __tests__/      # Test files
+├── config/         # Configuration & Swagger setup
+├── middleware/     # Localization and other middleware
+├── routes/         # Route definitions (health check, etc.)
+├── modules/        # Project is following vertically architecture. Each folder would have its own folder.
+├── types/          # TypeScript type augmentations
+├── uploads/        # File storage directory (for future use)
+├── app.ts          # Express app initialization
+└── index.ts        # Server bootstrap
 ```
 
 ## Scripts
@@ -106,36 +88,35 @@ src/
 
 ## Environment Variables
 
-See `.env.example` for all available configuration options.
+All variables are prefixed with `NB_BACKEND_`. A sample `.env` is included under `backend/.env`.
 
 Key variables:
-- `PORT` - Server port (default: 3000)
-- `JWT_SECRET` - JWT signing secret
-- `MAX_FILE_SIZE` - Maximum upload size in bytes
-- `SUPPORTED_LOCALES` - Comma-separated locale codes
+- `NB_BACKEND_PORT` - Server port (default: 3000)
+- `NB_BACKEND_NODE_ENV` - Node environment (development, production, etc.)
+- `NB_BACKEND_ALLOWED_ORIGINS` - Comma-separated list of CORS origins
+- `NB_BACKEND_UPLOAD_PATH` - Local uploads directory path (default: ./src/uploads)
+- `NB_BACKEND_MAX_FILE_SIZE` - Maximum upload size in bytes (default: 10485760)
+- `NB_BACKEND_DEFAULT_LOCALE` - Default locale (default: en)
+- `NB_BACKEND_SUPPORTED_LOCALES` - Comma-separated locale codes (default: en,es,fr)
+
+Note: JWT-related variables exist in the config for future use (`NB_BACKEND_JWT_*`), but authentication endpoints are not yet implemented in this backend module.
 
 ## Testing
 
-Run the test suite:
+Run tests with:
 
 ```bash
 npm test
 ```
 
-Test coverage includes:
-- API endpoints
-- Authentication flows
-- Error handling
-- Multi-locale responses
+Note: Jest is configured in the project, but test files may be minimal or pending depending on the current development stage.
 
-## Security Features
+## Security & Middleware
 
-- JWT token authentication
-- Role-based access control
-- CORS protection
+- CORS protection (configurable origins)
 - Helmet security headers
-- File upload validation
-- Password hashing (bcrypt)
+- Request logging (morgan)
+- Localization middleware
 
 ## Production Deployment
 

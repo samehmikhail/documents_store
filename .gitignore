@@ -34,5 +34,5 @@ logs/
 coverage/
 
 # Uploads (development)
-backend/src/uploads/*
-!backend/src/uploads/.gitkeep
+backend/uploads/*
+!backend/uploads/.gitkeep
