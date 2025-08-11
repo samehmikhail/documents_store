@@ -100,22 +100,18 @@ describe('Authentication API', () => {
     });
 
     test('should create document for authenticated user', async () => {
-      const documentData = {
-        name: 'Test Document Auth',
-        content: 'This is a test document created by authenticated user'
-      };
-
       const response = await request(app)
-        .post('/api/documents')
+        .post('/api/documents/upload')
         .set('X-TENANT-ID', testTenantId)
         .set('X-User-Token', testUserToken)
-        .send(documentData)
+        .field('name', 'Test Document Auth')
+        .field('content', 'This is a test document created by authenticated user')
         .expect(201);
 
       expect(response.body.success).toBe(true);
       expect(response.body.user).toBe('testuser');
-      expect(response.body.data.name).toBe(documentData.name);
-      expect(response.body.data.content).toBe(documentData.content);
+      expect(response.body.data.name).toBe('Test Document Auth');
+      expect(response.body.data.content).toBe('This is a test document created by authenticated user');
     });
 
     test('should include user context in all responses', async () => {

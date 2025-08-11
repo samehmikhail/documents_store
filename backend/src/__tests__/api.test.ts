@@ -119,36 +119,28 @@ describe('Multi-Tenant API', () => {
     });
 
     it('should create a document for tenant', async () => {
-      const documentData = {
-        name: 'Test Document',
-        content: 'This is test content'
-      };
-
       const response = await request(app)
-        .post('/api/documents')
+        .post('/api/documents/upload')
         .set('X-TENANT-ID', validTenantId)
         .set('X-User-Token', testToken1)
-        .send(documentData)
+        .field('name', 'Test Document')
+        .field('content', 'This is test content')
         .expect(201);
       
       expect(response.body.success).toBe(true);
-      expect(response.body.data.name).toBe(documentData.name);
-      expect(response.body.data.content).toBe(documentData.content);
+      expect(response.body.data.name).toBe('Test Document');
+      expect(response.body.data.content).toBe('This is test content');
       expect(response.body.data.id).toBeDefined();
     });
 
     it('should list documents for tenant after creation', async () => {
       // First create a document
-      const documentData = {
-        name: 'Test Document 2',
-        content: 'This is test content 2'
-      };
-
       await request(app)
-        .post('/api/documents')
+        .post('/api/documents/upload')
         .set('X-TENANT-ID', validTenantId)
         .set('X-User-Token', testToken1)
-        .send(documentData)
+        .field('name', 'Test Document 2')
+        .field('content', 'This is test content 2')
         .expect(201);
 
       // Then list documents
@@ -160,7 +152,7 @@ describe('Multi-Tenant API', () => {
       
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveLength(1); // Should have only this one
-      expect(response.body.data[0].name).toBe(documentData.name);
+      expect(response.body.data[0].name).toBe('Test Document 2');
     });
 
     it('should isolate documents between tenants', async () => {
@@ -168,10 +160,11 @@ describe('Multi-Tenant API', () => {
       
       // Create a document for tenant1 first
       await request(app)
-        .post('/api/documents')
+        .post('/api/documents/upload')
         .set('X-TENANT-ID', validTenantId)
         .set('X-User-Token', testToken1)
-        .send({ name: 'Tenant 1 Doc', content: 'Content for tenant 1' })
+        .field('name', 'Tenant 1 Doc')
+        .field('content', 'Content for tenant 1')
         .expect(201);
       
       // Get documents for tenant2
@@ -187,10 +180,10 @@ describe('Multi-Tenant API', () => {
 
     it('should validate required fields for document creation', async () => {
       const response = await request(app)
-        .post('/api/documents')
+        .post('/api/documents/upload')
         .set('X-TENANT-ID', validTenantId)
         .set('X-User-Token', testToken1)
-        .send({ name: 'Test' }) // Missing content
+        .field('name', '') // Missing content and empty name
         .expect(400);
       
       expect(response.body.success).toBe(false);

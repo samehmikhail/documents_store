@@ -44,6 +44,13 @@ export class DatabaseManager {
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         content TEXT,
+        owner_id TEXT NOT NULL,
+        visibility TEXT NOT NULL DEFAULT 'private' CHECK(visibility IN ('tenant', 'private')),
+        file_name TEXT,
+        file_path TEXT,
+        file_size INTEGER,
+        mime_type TEXT,
+        file_uuid TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
@@ -73,6 +80,18 @@ export class DatabaseManager {
     `);
     
     // Create indexes for better performance
+    await database.run(`
+      CREATE INDEX IF NOT EXISTS idx_documents_owner_id ON documents(owner_id)
+    `);
+    
+    await database.run(`
+      CREATE INDEX IF NOT EXISTS idx_documents_visibility ON documents(visibility)
+    `);
+    
+    await database.run(`
+      CREATE INDEX IF NOT EXISTS idx_documents_file_uuid ON documents(file_uuid)
+    `);
+    
     await database.run(`
       CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)
     `);
