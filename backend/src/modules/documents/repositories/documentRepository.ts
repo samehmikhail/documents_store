@@ -22,19 +22,66 @@ export class DocumentRepository implements IRepository<Document> {
     return rows.map(this.mapRowToDocument);
   }
 
+  /**
+   * Find documents based on role and user access
+   * - Admins see all tenant documents
+   * - Regular users see tenant-level docs + their own private docs
+   */
+  async findByAccessLevel(tenantId: string, userId: string, userRole: 'admin' | 'user'): Promise<Document[]> {
+    let query: string;
+    let params: string[];
+
+    if (userRole === 'admin') {
+      // Admins see all tenant documents
+      query = 'SELECT * FROM documents WHERE tenant_id = ? ORDER BY created_at DESC';
+      params = [tenantId];
+    } else {
+      // Regular users see tenant-level docs + their own private docs
+      query = `
+        SELECT * FROM documents 
+        WHERE tenant_id = ? 
+        AND (visibility = 'tenant' OR (visibility = 'private' AND owner_id = ?))
+        ORDER BY created_at DESC
+      `;
+      params = [tenantId, userId];
+    }
+
+    const rows = await this.database.query(query, params);
+    return rows.map(this.mapRowToDocument);
+  }
+
+  /**
+   * Find documents owned by a specific user
+   */
+  async findByOwner(ownerId: string): Promise<Document[]> {
+    const rows = await this.database.query(
+      'SELECT * FROM documents WHERE owner_id = ? ORDER BY created_at DESC',
+      [ownerId]
+    );
+    return rows.map(this.mapRowToDocument);
+  }
+
   async create(entity: Omit<Document, 'id' | 'createdAt' | 'updatedAt'>): Promise<Document> {
     const id = uuidv4();
     const now = new Date().toISOString();
 
     await this.database.run(
-      'INSERT INTO documents (id, name, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
-      [id, entity.name, entity.content, now, now]
+      `INSERT INTO documents (
+        id, name, content, tenant_id, owner_id, visibility,
+        file_name, file_path, file_size, mime_type, file_uuid,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id, entity.name, entity.content, entity.tenantId, entity.ownerId, entity.visibility,
+        entity.fileName || null, entity.filePath || null, entity.fileSize || null, 
+        entity.mimeType || null, entity.fileUuid || null,
+        now, now
+      ]
     );
 
     return {
       id,
-      name: entity.name,
-      content: entity.content,
+      ...entity,
       createdAt: new Date(now),
       updatedAt: new Date(now)
     };
@@ -77,6 +124,14 @@ export class DocumentRepository implements IRepository<Document> {
       id: row.id,
       name: row.name,
       content: row.content,
+      tenantId: row.tenant_id,
+      ownerId: row.owner_id,
+      visibility: row.visibility,
+      fileName: row.file_name,
+      filePath: row.file_path,
+      fileSize: row.file_size,
+      mimeType: row.mime_type,
+      fileUuid: row.file_uuid,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at)
     };

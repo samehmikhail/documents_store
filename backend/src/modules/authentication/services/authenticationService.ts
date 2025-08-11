@@ -35,7 +35,7 @@ export class AuthenticationService {
     }
   }
 
-  async createUser(username: string, role: 'admin' | 'user' = 'user', defaultToken: string|undefined): Promise<UserWithToken> {
+  async createUser(username: string, role: 'admin' | 'user' = 'user', defaultToken?: string): Promise<UserWithToken> {
     try {
       // Check if username already exists
       const existingUser = await this.userRepository.findByUsername(username);
