@@ -1,0 +1,23 @@
+{
+  "name": "documents_store",
+  "version": "1.0.0",
+  "description": "Multi-module document store application with backend and frontend",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=backend",
+    "build": "npm run build --workspace=backend",
+    "start": "npm run start --workspace=backend",
+    "test": "npm run test --workspaces"
+  },
+  "keywords": ["document-store", "nodejs", "express", "typescript"],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
