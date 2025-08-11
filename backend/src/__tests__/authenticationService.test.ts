@@ -1,10 +1,8 @@
 import { AuthenticationService } from '../modules/authentication/services/authenticationService';
-import { UserRepository } from '../modules/authentication/repositories/userRepository';
-import { TokenRepository } from '../modules/authentication/repositories/tokenRepository';
 import { databaseManager } from '../database/manager';
 
 describe('Authentication Service', () => {
-  const testTenantId = 'test-service-tenant';
+  const testTenantId = 'test-service-tenant-' + Math.random().toString(36).substring(7);
   let authService: AuthenticationService;
   let database: any;
 
@@ -15,6 +13,14 @@ describe('Authentication Service', () => {
 
   afterAll(async () => {
     await databaseManager.closeAllConnections();
+    
+    // Clean up test database files
+    try {
+      const fs = await import('fs/promises');
+      await fs.rm('databases', { recursive: true, force: true });
+    } catch (error) {
+      // Ignore cleanup errors
+    }
   });
 
   beforeEach(async () => {

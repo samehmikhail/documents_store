@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { TenantRequest } from '../modules/multi-tenant/types/tenant';
 import { AuthenticatedRequest } from '../modules/authentication/middleware/authentication';
 import { databaseManager } from '../database/manager';
 import { DocumentRepository } from '../modules/documents/repositories/documentRepository';

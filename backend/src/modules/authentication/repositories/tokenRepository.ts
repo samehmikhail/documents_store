@@ -85,6 +85,13 @@ export class TokenRepository implements IRepository<Token> {
   async delete(id: string): Promise<boolean> {
     try {
       const result = await this.database.run('DELETE FROM tokens WHERE id = ?', [id]);
+      // For DELETE operations, SQLite might return undefined, so we'll check if the operation succeeded
+      // by trying to find the token afterwards
+      if (result === undefined) {
+        // If result is undefined, check if the token still exists
+        const remainingToken = await this.findById(id);
+        return !remainingToken; // If no token found, deletion was successful
+      }
       return result && (result.changes || 0) > 0;
     } catch (error) {
       console.error('Error deleting token:', error);

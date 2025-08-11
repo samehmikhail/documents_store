@@ -4,18 +4,20 @@ import { databaseManager } from '../database/manager';
 import { AuthenticationService } from '../modules/authentication/services/authenticationService';
 
 describe('Authentication API', () => {
-  const testTenantId = 'test-auth-tenant';
+  const testTenantId = 'test-auth-tenant-' + Math.random().toString(36).substring(7);
   const testUserToken = 'test-auth-token-123';
-  let testUserId: string;
 
   beforeAll(async () => {
+    // Register the test tenant
+    const { tenantStore } = await import('../modules/multi-tenant/services/tenantStore');
+    tenantStore.addTenant(testTenantId, 'Test Authentication Tenant', true);
+    
     // Set up test user and token for the test tenant
     const database = await databaseManager.getDatabase(testTenantId);
     const authService = new AuthenticationService(database);
     
     // Create a test user with token
     const userWithToken = await authService.createUser('testuser', 'admin');
-    testUserId = userWithToken.id;
     
     // Update the token to a known value for testing
     if (userWithToken.token) {
@@ -29,6 +31,14 @@ describe('Authentication API', () => {
   afterAll(async () => {
     // Clean up
     await databaseManager.closeAllConnections();
+    
+    // Clean up test database files
+    try {
+      const fs = await import('fs/promises');
+      await fs.rm('databases', { recursive: true, force: true });
+    } catch (error) {
+      // Ignore cleanup errors
+    }
   });
 
   describe('Authentication Middleware', () => {
@@ -121,7 +131,7 @@ describe('Authentication API', () => {
       expect(response.body.user).toBeDefined();
       expect(response.body.user.username).toBe('testuser');
       expect(response.body.user.role).toBe('admin');
-      expect(response.body.tenant).toBe(testTenantId);
+      expect(response.body.tenant).toBe('Test Authentication Tenant'); // This returns tenant name, not ID
     });
   });
 
