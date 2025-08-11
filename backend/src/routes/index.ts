@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { AuthenticatedRequest } from '../modules/authentication/middleware/authentication';
-import documentRoutes from './documents';
+import documentRoutes from '../modules/documents/routes/documents';
 
 const router = Router();
 

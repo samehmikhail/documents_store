@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { DocumentController } from '../modules/documents/controllers/documentController';
+import { DocumentController } from '../controllers/documentController';
 
 const router = Router();
 const documentController = new DocumentController();
