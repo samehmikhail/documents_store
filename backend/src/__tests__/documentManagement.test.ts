@@ -46,7 +46,6 @@ describe('Document Management API', () => {
       tenantDocument = await docRepo.create({
         name: 'Tenant Document',
         content: 'This is visible to all users in the tenant',
-        tenantId: testTenantId,
         ownerId: adminUser.id,
         visibility: 'tenant'
       });
@@ -54,7 +53,6 @@ describe('Document Management API', () => {
       privateDocument = await docRepo.create({
         name: 'Private Document',
         content: 'This is private to regular user',
-        tenantId: testTenantId,
         ownerId: regularUser.id,
         visibility: 'private'
       });
@@ -62,7 +60,6 @@ describe('Document Management API', () => {
       otherUserPrivateDocument = await docRepo.create({
         name: 'Other User Private Document',
         content: 'This is private to admin user',
-        tenantId: testTenantId,
         ownerId: adminUser.id,
         visibility: 'private'
       });
@@ -135,7 +132,6 @@ describe('Document Management API', () => {
       expect(response.body.data.name).toBe(documentData.name);
       expect(response.body.data.content).toBe(documentData.content);
       expect(response.body.data.visibility).toBe('private');
-      expect(response.body.data.tenantId).toBe(testTenantId);
       expect(response.body.data.ownerId).toBe(regularUser.id);
     });
 
@@ -223,7 +219,6 @@ describe('Document Management API', () => {
       testDocument = await docRepo.create({
         name: 'Modifiable Document',
         content: 'Original content',
-        tenantId: testTenantId,
         ownerId: regularUser.id,
         visibility: 'private'
       });

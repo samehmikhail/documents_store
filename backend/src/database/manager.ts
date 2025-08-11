@@ -44,7 +44,6 @@ export class DatabaseManager {
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         content TEXT,
-        tenant_id TEXT NOT NULL,
         owner_id TEXT NOT NULL,
         visibility TEXT NOT NULL DEFAULT 'private' CHECK(visibility IN ('tenant', 'private')),
         file_name TEXT,
@@ -82,10 +81,6 @@ export class DatabaseManager {
     
     // Create indexes for better performance
     await database.run(`
-      CREATE INDEX IF NOT EXISTS idx_documents_tenant_id ON documents(tenant_id)
-    `);
-    
-    await database.run(`
       CREATE INDEX IF NOT EXISTS idx_documents_owner_id ON documents(owner_id)
     `);
     
@@ -122,7 +117,6 @@ export class DatabaseManager {
       const columns = tableInfo.map((col: any) => col.name);
       
       const missingColumns = [
-        'tenant_id',
         'owner_id', 
         'visibility',
         'file_name',
@@ -139,9 +133,6 @@ export class DatabaseManager {
         for (const column of missingColumns) {
           let sql = '';
           switch (column) {
-            case 'tenant_id':
-              sql = `ALTER TABLE documents ADD COLUMN tenant_id TEXT NOT NULL DEFAULT ''`;
-              break;
             case 'owner_id':
               sql = `ALTER TABLE documents ADD COLUMN owner_id TEXT NOT NULL DEFAULT ''`;
               break;

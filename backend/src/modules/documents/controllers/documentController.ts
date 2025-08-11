@@ -46,7 +46,6 @@ export class DocumentController {
       const documentRepo = new DocumentRepository(database);
       
       const documents = await documentRepo.findByAccessLevel(
-        authenticatedReq.tenantId,
         authenticatedReq.user.id,
         authenticatedReq.user.role
       );
@@ -98,7 +97,7 @@ export class DocumentController {
       }
 
       // Check access permissions
-      if (!this.canAccessDocument(document, authenticatedReq.user.id, authenticatedReq.user.role, authenticatedReq.tenantId)) {
+      if (!this.canAccessDocument(document, authenticatedReq.user.id, authenticatedReq.user.role)) {
         res.status(403).json({
           success: false,
           message: req.t?.('documents:access_denied') || 'Access denied'
@@ -150,7 +149,6 @@ export class DocumentController {
       const document = await documentRepo.create({
         name,
         content,
-        tenantId: authenticatedReq.tenantId,
         ownerId: authenticatedReq.user.id,
         visibility: visibility as 'tenant' | 'private'
       });
@@ -207,7 +205,6 @@ export class DocumentController {
       const document = await documentRepo.create({
         name: name || file.originalname,
         content: '', // Empty for file uploads
-        tenantId: authenticatedReq.tenantId,
         ownerId: authenticatedReq.user.id,
         visibility: visibility as 'tenant' | 'private',
         fileName: file.originalname,
@@ -261,7 +258,7 @@ export class DocumentController {
       }
 
       // Check access permissions
-      if (!this.canAccessDocument(document, authenticatedReq.user.id, authenticatedReq.user.role, authenticatedReq.tenantId)) {
+      if (!this.canAccessDocument(document, authenticatedReq.user.id, authenticatedReq.user.role)) {
         res.status(403).json({
           success: false,
           message: req.t?.('documents:access_denied') || 'Access denied'
@@ -430,14 +427,10 @@ export class DocumentController {
 
   /**
    * Check if user can access a document based on role and visibility
+   * Since each tenant has its own database, we don't need to check tenant_id
    */
-  private canAccessDocument(document: any, userId: string, userRole: 'admin' | 'user', tenantId: string): boolean {
-    // Document must belong to the same tenant
-    if (document.tenantId !== tenantId) {
-      return false;
-    }
-
-    // Admins can access all documents in their tenant
+  private canAccessDocument(document: any, userId: string, userRole: 'admin' | 'user'): boolean {
+    // Admins can access all documents in their tenant database
     if (userRole === 'admin') {
       return true;
     }
