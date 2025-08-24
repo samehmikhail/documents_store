@@ -1,6 +1,7 @@
 import { Event } from '../types/event';
 import { Config } from '../../../config';
 import { v4 as uuidv4 } from 'uuid';
+import { eventDeliveryService } from './eventDelivery';
 
 export class EventBusService {
   private eventsByTenant: Map<string, Event[]> = new Map();
@@ -79,6 +80,19 @@ export class EventBusService {
    */
   getTenantEventCount(tenantId: string): number {
     return this.eventsByTenant.get(tenantId)?.length || 0;
+  }
+
+  /**
+   * Create event and broadcast it (consolidated method to avoid duplication)
+   */
+  async createAndBroadcastEvent(tenantId: string, message: string, authorId?: string): Promise<Event> {
+    // Create the event
+    const event = this.appendEvent(tenantId, message, authorId);
+    
+    // Broadcast to tenant room via event delivery service
+    await eventDeliveryService.broadcastEventCreated(event);
+    
+    return event;
   }
 
   /**

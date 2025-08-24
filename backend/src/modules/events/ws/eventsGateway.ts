@@ -196,18 +196,15 @@ class SocketIOEventsGateway implements IEventDeliveryService {
         return;
       }
 
-      if (trimmedMessage.length > 2048) {
-        const error: EventError = { code: 'MESSAGE_TOO_LARGE', message: 'Message too large (max 2048 characters)' };
+      if (trimmedMessage.length > Config.EVENTS_MESSAGE_MAX_LENGTH) {
+        const error: EventError = { code: 'MESSAGE_TOO_LARGE', message: `Message too large (max ${Config.EVENTS_MESSAGE_MAX_LENGTH} characters)` };
         if (callback) callback(error);
         else authSocket.emit('error', error);
         return;
       }
 
-      // Create event
-      const event = eventBusService.appendEvent(authSocket.tenantId, trimmedMessage, authSocket.userId);
-
-      // Broadcast to tenant room
-      await this.broadcastEventCreated(event);
+      // Create and broadcast event using consolidated service method
+      const event = await eventBusService.createAndBroadcastEvent(authSocket.tenantId, trimmedMessage, authSocket.userId);
 
       // Respond to sender
       if (callback) {

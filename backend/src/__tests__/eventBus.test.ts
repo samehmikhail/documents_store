@@ -134,6 +134,34 @@ describe('EventBusService', () => {
     });
   });
 
+  describe('createAndBroadcastEvent', () => {
+    it('should create event and call broadcast service', async () => {
+      const tenantId = 'test-tenant';
+      const message = 'Test broadcast message';
+      const authorId = 'user-123';
+
+      // Mock the event delivery service to verify broadcast is called
+      const mockBroadcast = jest.fn().mockResolvedValue(undefined);
+      const originalEventDeliveryService = require('../modules/events/services/eventDelivery').eventDeliveryService;
+      
+      // Replace with mock
+      require('../modules/events/services/eventDelivery').eventDeliveryService = {
+        broadcastEventCreated: mockBroadcast
+      };
+
+      const event = await eventBus.createAndBroadcastEvent(tenantId, message, authorId);
+
+      expect(event.id).toBeDefined();
+      expect(event.tenant_id).toBe(tenantId);
+      expect(event.message).toBe(message);
+      expect(event.author_id).toBe(authorId);
+      expect(mockBroadcast).toHaveBeenCalledWith(event);
+
+      // Restore original
+      require('../modules/events/services/eventDelivery').eventDeliveryService = originalEventDeliveryService;
+    });
+  });
+
   describe('utility functions', () => {
     it('should return correct tenant event count', () => {
       eventBus.appendEvent('test-tenant', 'Event 1');
