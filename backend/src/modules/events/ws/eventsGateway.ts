@@ -19,7 +19,7 @@ interface AuthenticatedSocket extends Socket {
   username: string;
 }
 
-class EventsGateway implements IEventDeliveryService {
+class SocketIOEventsGateway implements IEventDeliveryService {
   private io: SocketIOServer | null = null;
   private eventsNamespace: any = null;
 
@@ -264,4 +264,4 @@ class EventsGateway implements IEventDeliveryService {
   }
 }
 
-export const eventsGateway = new EventsGateway();
+export const eventsGateway = new SocketIOEventsGateway();
