@@ -141,6 +141,7 @@ All variables are prefixed with NB_BACKEND_. A sample .env is included under bac
 - NB_BACKEND_DEFAULT_LOCALE: Default locale (default: en)
 - NB_BACKEND_SUPPORTED_LOCALES: Comma-separated list (default: en,es,fr)
 - NB_BACKEND_DB_DIRECTORY: Directory where tenant DB files are stored (default: ./databases)
+- NB_BACKEND_SEED_DATA_PATH: Path to shared seed JSON (default: ../shared/seed/seedData.json)
 
 ## Scripts
 - npm run dev — Start development server with hot reload

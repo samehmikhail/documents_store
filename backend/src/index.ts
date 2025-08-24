@@ -4,7 +4,7 @@ import { dataSeedService } from './modules/data-seed';
 
 const PORT = Config.PORT;
 
-async function startServer() {
+export async function startServer() {
   try {
     // Initialize pre-configured test data
     await dataSeedService.seedData();
@@ -34,4 +34,8 @@ async function startServer() {
   }
 }
 
-startServer();
+// Avoid starting the server during tests to prevent side effects (like seeding) under Jest
+if (Config.NODE_ENV !== 'test') {
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  startServer();
+}

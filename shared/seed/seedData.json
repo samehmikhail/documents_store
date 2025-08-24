@@ -1,0 +1,26 @@
+{
+  "admin_a": {
+    "tenant": "company_a",
+    "role": "admin",
+    "username": "admin_a",
+    "token": "token_admin_a"
+  },
+  "user_a": {
+    "tenant": "company_a",
+    "role": "user",
+    "username": "user_a",
+    "token": "token_user_a"
+  },
+  "user_b": {
+    "tenant": "company_a",
+    "role": "user",
+    "username": "user_b",
+    "token": "token_user_b"
+  },
+  "admin_b": {
+    "tenant": "company_b",
+    "role": "admin",
+    "username": "admin_b",
+    "token": "token_admin_b"
+  }
+}

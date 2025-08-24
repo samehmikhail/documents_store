@@ -1,7 +1,7 @@
 import { dataSeedService } from '../modules/data-seed';
 import { databaseManager } from '../database/manager';
 import { AuthenticationService } from '../modules/authentication/services/authenticationService';
-import { SEED_DATA } from '../modules/data-seed/types/seedData';
+import { loadSeedData } from '../modules/data-seed/types/seedData';
 
 describe('Data Seeding Service', () => {
   beforeAll(async () => {
@@ -38,7 +38,7 @@ describe('Data Seeding Service', () => {
       expect(await dataSeedService.isSeedDataPresent()).toBe(true);
       
       // Verify each user was created correctly
-      for (const userData of Object.values(SEED_DATA)) {
+  for (const userData of Object.values(loadSeedData())) {
         const database = await databaseManager.getDatabase(userData.tenant);
         const authService = new AuthenticationService(database);
         
@@ -87,7 +87,7 @@ describe('Data Seeding Service', () => {
       await dataSeedService.seedData();
       
       // Verify all tokens still work correctly
-      for (const userData of Object.values(SEED_DATA)) {
+  for (const userData of Object.values(loadSeedData())) {
         const database = await databaseManager.getDatabase(userData.tenant);
         const authService = new AuthenticationService(database);
         

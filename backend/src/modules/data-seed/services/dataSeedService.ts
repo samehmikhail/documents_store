@@ -1,6 +1,6 @@
 import { databaseManager } from '../../../database/manager';
 import { AuthenticationService } from '../../authentication/services/authenticationService';
-import { SEED_DATA, SeedUserData } from '../types/seedData';
+import { loadSeedData, SeedUserData } from '../types/seedData';
 
 export class DataSeedService {
   private static instance: DataSeedService;
@@ -23,7 +23,7 @@ export class DataSeedService {
     console.log('🌱 Starting data seeding process...');
 
     try {
-      const tenants = this.getUniqueTenants();
+  const tenants = this.getUniqueTenants();
       
       for (const tenant of tenants) {
         await this.seedTenantData(tenant);
@@ -46,7 +46,7 @@ export class DataSeedService {
     const database = await databaseManager.getDatabase(tenantId);
     const authService = new AuthenticationService(database);
     
-    const tenantUsers = Object.values(SEED_DATA).filter(user => user.tenant === tenantId);
+  const tenantUsers = Object.values(loadSeedData()).filter(user => user.tenant === tenantId);
     
     for (const userData of tenantUsers) {
       await this.seedUser(authService, userData);
@@ -88,7 +88,7 @@ export class DataSeedService {
    * Get list of unique tenants from seed data
    */
   private getUniqueTenants(): string[] {
-    const tenants = Object.values(SEED_DATA).map(user => user.tenant);
+  const tenants = Object.values(loadSeedData()).map(user => user.tenant);
     return [...new Set(tenants)];
   }
 
@@ -98,14 +98,24 @@ export class DataSeedService {
   async isSeedDataPresent(): Promise<boolean> {
     try {
       // Check if users exist - tenants are automatically discovered when databases exist
-      for (const userData of Object.values(SEED_DATA)) {
+      const seedData = loadSeedData();
+      if (!seedData || Object.keys(seedData).length === 0) {
+        return false;
+      }
+      // If any tenant DB has zero users, we treat seed as not present
+      const tenants = [...new Set(Object.values(seedData).map(u => u.tenant))];
+      for (const tenant of tenants) {
+        const database = await databaseManager.getDatabase(tenant);
+        const rows = await database.query('SELECT COUNT(*) as count FROM users');
+        const count = rows?.[0]?.count ?? 0;
+        if (count === 0) return false;
+      }
+      // Ensure all configured users exist
+      for (const userData of Object.values(seedData)) {
         const database = await databaseManager.getDatabase(userData.tenant);
         const authService = new AuthenticationService(database);
-        
         const user = await authService.getUserByUsername(userData.username);
-        if (!user) {
-          return false;
-        }
+        if (!user) return false;
       }
       return true;
     } catch (error) {

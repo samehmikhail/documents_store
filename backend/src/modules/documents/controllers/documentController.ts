@@ -194,7 +194,9 @@ export class DocumentController {
         message: file 
           ? (req.t?.('documents:uploaded') || 'Document uploaded successfully')
           : (req.t?.('documents:created') || 'Document created successfully'),
-        data: document
+        data: document,
+        tenant: authenticatedReq.tenantId,
+        user: authenticatedReq.user.username
       });
     } catch (error) {
       console.error('Error uploading document:', error);
