@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
 
-export type TenantId = 'tenant-a' | 'tenant-b';
+export type TenantId = string;
 
 export interface Identity {
   tenant: TenantId;
@@ -15,7 +15,7 @@ interface IdentityContextValue extends Identity {
 const IdentityContext = createContext<IdentityContextValue | undefined>(undefined);
 
 export const IdentityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tenant, setTenant] = useState<TenantId>('tenant-a');
+  const [tenant, setTenant] = useState<TenantId>('company_a');
   const [token, setToken] = useState<string>('');
 
   const value = useMemo(

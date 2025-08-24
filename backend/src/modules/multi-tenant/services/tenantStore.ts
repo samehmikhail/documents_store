@@ -54,6 +54,21 @@ class TenantStore {
       return [];
     }
   }
+
+  /**
+   * Test helper: ensures a tenant database file exists so middleware treats it as valid
+   */
+  async addTenant(id: string, _name?: string, _active: boolean = true): Promise<void> {
+    const dbPath = path.join(this.dbDirectory, `${id}.db`);
+    try {
+      await fs.access(dbPath);
+      return;
+    } catch {
+      // create empty database file by touching it
+      await fs.mkdir(this.dbDirectory, { recursive: true }).catch(() => undefined);
+      await fs.writeFile(dbPath, '');
+    }
+  }
 }
 
 export const tenantStore = new TenantStore();

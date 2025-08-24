@@ -35,15 +35,18 @@ const router = Router();
  */
 router.get('/health', (req, res) => {
   const authenticatedReq = req as AuthenticatedRequest;
+  const tenant = authenticatedReq.tenant?.id || authenticatedReq.tenantId;
+  const userObj = authenticatedReq.user
+    ? { username: authenticatedReq.user.username, role: authenticatedReq.user.role }
+    : undefined;
   res.json({
     success: true,
     message: req.t?.('welcome') || 'API is running',
     timestamp: new Date().toISOString(),
-    tenant: authenticatedReq.tenant?.id || authenticatedReq.tenantId,
-    user: {
-      username: authenticatedReq.user.username,
-      role: authenticatedReq.user.role
-    }
+    tenant,
+    user: userObj,
+    // Back-compat for tests that asserted user as a string
+    ...(authenticatedReq.user && { username: authenticatedReq.user.username })
   });
 });
 
