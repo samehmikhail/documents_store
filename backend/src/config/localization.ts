@@ -17,7 +17,7 @@ i18next
       loadPath: path.join(__dirname, '../../locales/{{lng}}/{{ns}}.json'),
     },
     
-    ns: ['common', 'auth', 'documents'],
+    ns: ['common', 'auth', 'documents', 'events'],
     defaultNS: 'common',
     
     detection: {

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthenticatedRequest } from '../modules/authentication/middleware/authentication';
 import documentRoutes from '../modules/documents/routes/documents';
+import eventRoutes from '../modules/events/routes/events';
 
 const router = Router();
 
@@ -46,5 +47,8 @@ router.get('/health', (req, res) => {
 
 // Use the document routes
 router.use(documentRoutes);
+
+// Use the event routes  
+router.use(eventRoutes);
 
 export default router;
