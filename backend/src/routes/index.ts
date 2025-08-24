@@ -10,6 +10,8 @@ const router = Router();
  * /api/health:
  *   get:
  *     summary: Health check endpoint
+ *     tags:
+ *       - Health
  *     security:
  *       - TenantAuth: []
  *       - UserTokenAuth: []

@@ -44,6 +44,10 @@ function registerDocs(app: express.Express) {
   // API Documentation
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     explorer: true,
+    swaggerOptions: {
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha'
+    },
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'Documents Store API Documentation'
   }));

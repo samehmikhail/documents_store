@@ -49,6 +49,8 @@ const router = Router();
  * /api/events:
  *   post:
  *     summary: Create a new event
+ *     tags:
+ *       - Events
  *     security:
  *       - TenantAuth: []
  *       - UserTokenAuth: []
@@ -154,6 +156,8 @@ router.post('/events', async (req: Request, res: Response): Promise<void> => {
  * /api/events:
  *   get:
  *     summary: Get events for tenant (snapshot/replay)
+ *     tags:
+ *       - Events
  *     security:
  *       - TenantAuth: []
  *       - UserTokenAuth: []
