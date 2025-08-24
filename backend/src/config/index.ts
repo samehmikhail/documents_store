@@ -12,5 +12,12 @@ export const Config = {
   DEFAULT_LOCALE: process.env.NB_BACKEND_DEFAULT_LOCALE || 'en',
   SUPPORTED_LOCALES: process.env.NB_BACKEND_SUPPORTED_LOCALES?.split(',') || ['en', 'es', 'fr'],
   DB_DIRECTORY: process.env.NB_BACKEND_DB_DIRECTORY || './data/databases',
-  SEED_DATA_PATH: process.env.NB_BACKEND_SEED_DATA_PATH || '../shared/seed/seedData.json'
+  SEED_DATA_PATH: process.env.NB_BACKEND_SEED_DATA_PATH || '../shared/seed/seedData.json',
+
+  // Socket.IO configuration
+  SIO_NAMESPACE: process.env.NB_BACKEND_SIO_NAMESPACE || '/events',
+  EVENTS_BUFFER_SIZE: parseInt(process.env.NB_BACKEND_EVENTS_BUFFER_SIZE || '500'),
+  EVENTS_MESSAGE_MAX_LENGTH: parseInt(process.env.NB_BACKEND_EVENTS_MESSAGE_MAX_LENGTH || '2048'),
+  SIO_PING_INTERVAL: parseInt(process.env.NB_BACKEND_SIO_PING_INTERVAL || '25000'),
+  SIO_PING_TIMEOUT: parseInt(process.env.NB_BACKEND_SIO_PING_TIMEOUT || '20000'),
 };

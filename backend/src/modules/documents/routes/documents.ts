@@ -80,6 +80,8 @@ const documentController = new DocumentController();
  *     description: |
  *       - Regular users see tenant-level docs + their own private docs
  *       - Admins see all tenant documents
+ *     tags:
+ *       - Documents
  *     security:
  *       - TenantAuth: []
  *       - UserTokenAuth: []
@@ -123,6 +125,8 @@ router.get('/documents', documentController.getDocuments.bind(documentController
  * /api/documents/{id}:
  *   get:
  *     summary: Get a specific document by ID
+ *     tags:
+ *       - Documents
  *     security:
  *       - TenantAuth: []
  *       - UserTokenAuth: []
@@ -171,6 +175,8 @@ router.get('/documents/:id', documentController.getDocumentById.bind(documentCon
  *       - For file uploads: provide 'file' and optional 'name', 'content', 'visibility'
  *       - For text documents: provide 'name', 'content', and optional 'visibility' (no file)
  *       Either 'file' or 'content' is required, but not both.
+ *     tags:
+ *       - Documents
  *     security:
  *       - TenantAuth: []
  *       - UserTokenAuth: []
@@ -243,6 +249,8 @@ router.post('/documents/upload', documentController.getUploadMiddleware(), docum
  * /api/documents/{id}/download:
  *   get:
  *     summary: Download a file document
+ *     tags:
+ *       - Documents
  *     security:
  *       - TenantAuth: []
  *       - UserTokenAuth: []
@@ -280,6 +288,8 @@ router.get('/documents/:id/download', documentController.downloadDocument.bind(d
  *   put:
  *     summary: Update a document
  *     description: Users can only update their own documents. Admins can update any document in their tenant.
+ *     tags:
+ *       - Documents
  *     security:
  *       - TenantAuth: []
  *       - UserTokenAuth: []
@@ -336,6 +346,8 @@ router.put('/documents/:id', documentController.updateDocument.bind(documentCont
  *   delete:
  *     summary: Delete a document
  *     description: Users can only delete their own documents. Admins can delete any document in their tenant.
+ *     tags:
+ *       - Documents
  *     security:
  *       - TenantAuth: []
  *       - UserTokenAuth: []

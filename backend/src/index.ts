@@ -1,6 +1,7 @@
 import app from './app';
 import { Config } from './config';
 import { dataSeedService } from './modules/data-seed';
+import { eventsGateway } from './modules/events/ws/eventsGateway';
 
 const PORT = Config.PORT;
 
@@ -17,9 +18,13 @@ export async function startServer() {
       console.log(`🌐 Supported locales: ${Config.SUPPORTED_LOCALES.join(', ')}`);
     });
 
+    // Initialize Socket.IO Events Gateway
+    eventsGateway.initialize(server);
+
     // Graceful shutdown handlers
     const shutdown = () => {
       console.log('🔴 Shutdown signal received, shutting down gracefully');
+      eventsGateway.shutdown();
       server.close(() => {
         console.log('✅ Process terminated');
       });

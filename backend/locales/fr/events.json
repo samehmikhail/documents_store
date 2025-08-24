@@ -1,0 +1,8 @@
+{
+  "messageRequired": "Le message est requis",
+  "messageEmpty": "Le message ne peut pas être vide",
+  "messageTooLarge": "Message trop volumineux (maximum 2048 caractères)",
+  "eventCreated": "Événement créé avec succès",
+  "eventsRetrieved": "Événements récupérés avec succès",
+  "invalidLimit": "Paramètre de limite invalide"
+}

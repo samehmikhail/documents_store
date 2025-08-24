@@ -16,6 +16,21 @@ const options = {
         description: 'Development server',
       },
     ],
+    // Tags to group APIs by module in Swagger UI
+    tags: [
+      {
+        name: 'Health',
+        description: 'Service health and root endpoints'
+      },
+      {
+        name: 'Documents',
+        description: 'Documents module APIs for managing documents and files'
+      },
+      {
+        name: 'Events',
+        description: 'Events module APIs for producing and reading events'
+      }
+    ],
     components: {
       securitySchemes: {
         UserTokenAuth: {
@@ -124,6 +139,21 @@ const options = {
                 success: false,
                 message: 'User token is required. Please provide X-User-Token header.',
                 code: 'USER_TOKEN_MISSING'
+              }
+            }
+          }
+        },
+        ForbiddenError: {
+          description: 'Forbidden',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Error'
+              },
+              example: {
+                success: false,
+                message: 'You do not have permission to perform this action.',
+                code: 'FORBIDDEN'
               }
             }
           }
