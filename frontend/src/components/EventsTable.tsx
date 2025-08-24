@@ -1,19 +1,47 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useIdentity } from '@/contexts/IdentityContext';
 import { eventsService, type EventRecord } from '@/services/eventsService';
 
 export function EventsTable() {
-  const { tenant } = useIdentity();
+  const { tenant, token } = useIdentity();
   const [events, setEvents] = useState<EventRecord[]>([]);
+  const [flash, setFlash] = useState(false);
+  const prevCount = useRef<number>(0);
+  const flashTimer = useRef<number | null>(null);
 
   useEffect(() => {
     setEvents(eventsService.getSnapshot(tenant));
-    const unsub = eventsService.subscribe(tenant, (list) => setEvents(list));
-    return () => unsub();
-  }, [tenant]);
+    prevCount.current = eventsService.getSnapshot(tenant).length;
+    const unsub = eventsService.subscribe(tenant, token, (list) => {
+      setEvents(list);
+      if (list.length > prevCount.current) {
+        setFlash(true);
+        if (flashTimer.current) window.clearTimeout(flashTimer.current);
+        flashTimer.current = window.setTimeout(() => setFlash(false), 2000);
+      }
+      prevCount.current = list.length;
+    });
+    return () => {
+      unsub();
+      if (flashTimer.current) window.clearTimeout(flashTimer.current);
+    };
+  }, [tenant, token]);
 
   return (
     <div className="card">
+      {flash && (
+        <div style={{
+          background: '#e6ffed',
+          border: '1px solid #b7eb8f',
+          color: '#389e0d',
+          padding: '6px 10px',
+          borderRadius: '6px',
+          marginBottom: '8px',
+          fontSize: '0.9rem',
+        }}>
+          New event received
+        </div>
+      )}
       <table className="events-table">
         <thead>
           <tr>
