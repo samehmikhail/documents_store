@@ -82,7 +82,7 @@ Related code
 - Uploads are handled via multer with in-memory storage, then persisted to disk using FilesystemStorage.
 - When a file is saved, a UUID is generated and used as the stored filename, preserving the original file extension: {fileUuid}.{ext}.
 - The original file name provided by the client (file.originalname) is stored in the DB (documents.file_name) and is used when downloading (Content-Disposition uses the original name).
-- Files are stored under NB_BACKEND_UPLOAD_PATH (default: ./src/uploads). Retrieval resolves the file by UUID by scanning the storage directory for a filename prefixed by the UUID.
+- Files are stored under NB_BACKEND_UPLOAD_PATH (default: ./data/uploads). Retrieval resolves the file by UUID by scanning the storage directory for a filename prefixed by the UUID.
 - Associated metadata stored in DB: file_uuid, file_name, file_path, file_size, mime_type.
 - On document deletion, the stored file (if any) is removed from the filesystem.
 
@@ -94,7 +94,7 @@ Related code
 ## Usage of the Database
 
 - Engine: SQLite via sqlite3 node module.
-- Isolation: One DB file per tenant in NB_BACKEND_DB_DIRECTORY (default: ./databases), file name {tenantId}.db.
+- Isolation: One DB file per tenant in NB_BACKEND_DB_DIRECTORY (default: ./data/databases), file name {tenantId}.db.
 - Access: DatabaseManager returns an IDatabase connection for the current tenant based on X-TENANT-ID.
 - Schema (auto-initialized per tenant):
   - documents: id, name, content, owner_id, visibility ('tenant' | 'private'), file_* fields, created_at, updated_at.
@@ -134,14 +134,19 @@ Supported: en (default), es, fr.
 All variables are prefixed with NB_BACKEND_. A sample .env is included under backend/.env.
 - NB_BACKEND_PORT: Server port (default: 3000)
 - NB_BACKEND_NODE_ENV: Node environment (development, production, ...)
-- NB_BACKEND_ALLOWED_ORIGINS: Comma-separated list of CORS origins
-- NB_BACKEND_UPLOAD_PATH: Directory for file storage (default: ./src/uploads)
+- NB_BACKEND_ALLOWED_ORIGINS: Comma-separated list of CORS origins (e.g., http://localhost:5173 for Vite)
+- NB_BACKEND_UPLOAD_PATH: Directory for file storage (default: ./data/uploads)
 - NB_BACKEND_MAX_FILE_SIZE: Max upload size in bytes (default: 10485760)
 - NB_BACKEND_MAX_UPLOAD_FILES: Max number of files for multi-upload (default: 10)
 - NB_BACKEND_DEFAULT_LOCALE: Default locale (default: en)
 - NB_BACKEND_SUPPORTED_LOCALES: Comma-separated list (default: en,es,fr)
-- NB_BACKEND_DB_DIRECTORY: Directory where tenant DB files are stored (default: ./databases)
+- NB_BACKEND_DB_DIRECTORY: Directory where tenant DB files are stored (default: ./data/databases)
 - NB_BACKEND_SEED_DATA_PATH: Path to shared seed JSON (default: ../shared/seed/seedData.json)
+- NB_BACKEND_SIO_NAMESPACE: Socket.IO namespace (default: /events)
+- NB_BACKEND_EVENTS_BUFFER_SIZE: Ring buffer size per tenant (default: 500)
+- NB_BACKEND_EVENTS_MESSAGE_MAX_LENGTH: Max event message length (default: 2048)
+- NB_BACKEND_SIO_PING_INTERVAL: Socket.IO ping interval ms (default: 25000)
+- NB_BACKEND_SIO_PING_TIMEOUT: Socket.IO ping timeout ms (default: 20000)
 
 ## Scripts
 - npm run dev — Start development server with hot reload
