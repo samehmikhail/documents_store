@@ -174,3 +174,20 @@ All variables are prefixed with NB_BACKEND_. A sample .env is included under bac
 3. Start: npm start
 
 Artifacts are emitted to dist/.
+
+## Frontend (SPA)
+
+A separate React + TypeScript SPA lives in the `frontend/` folder.
+
+Local run:
+
+1) Install deps in the workspace root (includes frontend via npm workspaces)
+2) Start backend: npm run dev
+3) Start frontend: npm --prefix frontend run dev
+
+Build frontend: npm --prefix frontend run build
+
+The SPA provides three sections:
+- Section A: Identity header (tenant + token). No API calls; values are attached to later actions.
+- Section B: New event form (placeholder; writes to in-memory service for now).
+- Section C: Real-time events table (placeholder; subscribes to in-memory pub/sub).

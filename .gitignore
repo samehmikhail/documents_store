@@ -35,6 +35,8 @@ backend/uploads/*
 # Database files (runtime generated)
 backend/databases/
 *.db
+/backend/data/database/
+/backend/data/uploads/
 
 # Demo scripts (not for production)
 backend/demo/
