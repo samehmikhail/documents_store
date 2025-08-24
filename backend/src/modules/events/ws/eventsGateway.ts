@@ -204,7 +204,7 @@ class SocketIOEventsGateway implements IEventDeliveryService {
       }
 
       // Create and broadcast event using consolidated service method
-      const event = await eventBusService.createAndBroadcastEvent(authSocket.tenantId, trimmedMessage, authSocket.userId);
+      const event = await eventBusService.createAndBroadcastEvent(authSocket.tenantId, trimmedMessage, authSocket.username);
 
       // Respond to sender
       if (callback) {

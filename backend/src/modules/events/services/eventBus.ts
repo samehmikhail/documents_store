@@ -14,13 +14,13 @@ export class EventBusService {
   /**
    * Append event to tenant's ring buffer and trim if needed
    */
-  appendEvent(tenantId: string, message: string, authorId?: string): Event {
+  appendEvent(tenantId: string, message: string, authorName?: string): Event {
     const event: Event = {
       id: uuidv4(),
       tenant_id: tenantId,
       message: message.trim(),
       timestamp: new Date().toISOString(),
-      author_id: authorId
+      author: authorName
     };
 
     let tenantEvents = this.eventsByTenant.get(tenantId);
@@ -85,9 +85,9 @@ export class EventBusService {
   /**
    * Create event and broadcast it (consolidated method to avoid duplication)
    */
-  async createAndBroadcastEvent(tenantId: string, message: string, authorId?: string): Promise<Event> {
+  async createAndBroadcastEvent(tenantId: string, message: string, authorName?: string): Promise<Event> {
     // Create the event
-    const event = this.appendEvent(tenantId, message, authorId);
+    const event = this.appendEvent(tenantId, message, authorName);
     
     // Broadcast to tenant room via event delivery service
     await eventDeliveryService.broadcastEventCreated(event);

@@ -3,7 +3,7 @@ export interface Event {
   tenant_id: string;  // e.g., "tenant_a" | "tenant_b" 
   message: string;
   timestamp: string;  // ISO 8601 (server-generated)
-  author_id?: string; // optional, derived from token
+  author?: string;    // optional username of the user who created the event
 }
 
 export interface EventReplayRequest {

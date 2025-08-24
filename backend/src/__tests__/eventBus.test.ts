@@ -11,14 +11,14 @@ describe('EventBusService', () => {
     it('should create and append event with UUID and timestamp', () => {
       const tenantId = 'test-tenant';
       const message = 'Test message';
-      const authorId = 'user-123';
+      const authorName = 'alice';
 
-      const event = eventBus.appendEvent(tenantId, message, authorId);
+      const event = eventBus.appendEvent(tenantId, message, authorName);
 
       expect(event.id).toBeDefined();
       expect(event.tenant_id).toBe(tenantId);
       expect(event.message).toBe(message);
-      expect(event.author_id).toBe(authorId);
+      expect(event.author).toBe(authorName);
       expect(event.timestamp).toBeDefined();
       expect(new Date(event.timestamp)).toBeInstanceOf(Date);
     });
@@ -138,7 +138,7 @@ describe('EventBusService', () => {
     it('should create event and call broadcast service', async () => {
       const tenantId = 'test-tenant';
       const message = 'Test broadcast message';
-      const authorId = 'user-123';
+      const authorName = 'alice';
 
       // Mock the event delivery service to verify broadcast is called
       const mockBroadcast = jest.fn().mockResolvedValue(undefined);
@@ -149,12 +149,12 @@ describe('EventBusService', () => {
         broadcastEventCreated: mockBroadcast
       };
 
-      const event = await eventBus.createAndBroadcastEvent(tenantId, message, authorId);
+      const event = await eventBus.createAndBroadcastEvent(tenantId, message, authorName);
 
       expect(event.id).toBeDefined();
       expect(event.tenant_id).toBe(tenantId);
       expect(event.message).toBe(message);
-      expect(event.author_id).toBe(authorId);
+      expect(event.author).toBe(authorName);
       expect(mockBroadcast).toHaveBeenCalledWith(event);
 
       // Restore original

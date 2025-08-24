@@ -28,9 +28,9 @@ const router = Router();
  *           type: string
  *           format: date-time
  *           description: Event creation timestamp
- *         author_id:
+ *         author:
  *           type: string
- *           description: ID of the user who created the event
+ *           description: Username of the user who created the event
  *     CreateEventRequest:
  *       type: object
  *       required:

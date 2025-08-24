@@ -26,7 +26,7 @@ type BackendEvent = {
   tenant_id: string;
   message: string;
   timestamp: string; // ISO
-  author_id?: string;
+  author?: string;
 };
 
 class EventsService {
@@ -164,7 +164,7 @@ class EventsService {
       tenant: e.tenant_id as TenantId,
       message: e.message,
       createdAt: Date.parse(e.timestamp),
-      createdBy: e.author_id || '—',
+      createdBy: e.author || '—',
     };
   }
 }

@@ -46,7 +46,7 @@ export class EventController {
       const event = await eventBusService.createAndBroadcastEvent(
         authenticatedReq.tenantId,
         trimmedMessage,
-        authenticatedReq.user.id
+        authenticatedReq.user.username
       );
 
       // Log event creation (without sensitive data)

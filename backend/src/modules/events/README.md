@@ -44,7 +44,7 @@ interface Event {
   tenant_id: string;  // Tenant identifier
   message: string;    // Event content (max 2048 chars)
   timestamp: string;  // ISO 8601 server timestamp
-  author_id?: string; // User ID who created the event
+  author?: string;    // Username who created the event
 }
 ```
 
